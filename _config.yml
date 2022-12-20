@@ -105,4 +105,4 @@ deploy:
   type: git
   repo:
     github: git@github.com:You0/You0.github.io.git
-  branch: blog
+  branch: master
