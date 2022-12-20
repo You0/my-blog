@@ -26,11 +26,6 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
-"@tootallnate/once@1":
-  version "1.1.2"
-  resolved "http://r.npm.sankuai.com/@tootallnate/once/download/@tootallnate/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
-  integrity sha1-zLkURTYBeaBOf+av94wA/8Hur4I=
-
 "@tootallnate/once@2":
   version "2.0.0"
   resolved "http://r.npm.sankuai.com/@tootallnate/once/download/@tootallnate/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
@@ -41,7 +36,7 @@ a-sync-waterfall@^1.0.0:
   resolved "http://r.npm.sankuai.com/a-sync-waterfall/download/a-sync-waterfall-1.0.1.tgz#75b6b6aa72598b497a125e7a2770f14f4c8a1fa7"
   integrity sha1-dba2qnJZi0l6El56J3DxT0yKH6c=
 
-abab@^2.0.3, abab@^2.0.5, abab@^2.0.6:
+abab@^2.0.5, abab@^2.0.6:
   version "2.0.6"
   resolved "http://r.npm.sankuai.com/abab/download/abab-2.0.6.tgz#41b80f2c871d19686216b82309231cfd3cb3d291"
   integrity sha1-QbgPLIcdGWhiFrgjCSMc/Tyz0pE=
@@ -77,7 +72,7 @@ acorn@^7.1.1:
   resolved "http://r.npm.sankuai.com/acorn/download/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
   integrity sha1-/q7SVZc9LndVW4PbwIhRpsY1IPo=
 
-acorn@^8.2.4, acorn@^8.5.0:
+acorn@^8.5.0:
   version "8.8.1"
   resolved "http://r.npm.sankuai.com/acorn/download/acorn-8.8.1.tgz#0a3f9cbecc4ec3bea6f0a80b66ae8dd2da250b73"
   integrity sha1-Cj+cvsxOw76m8KgLZq6N0tolC3M=
@@ -520,11 +515,6 @@ css@^3.0.0:
     source-map "^0.6.1"
     source-map-resolve "^0.6.0"
 
-cssom@^0.4.4:
-  version "0.4.4"
-  resolved "http://r.npm.sankuai.com/cssom/download/cssom-0.4.4.tgz#5a66cf93d2d0b661d80bf6a44fb65f5c2e4e0a10"
-  integrity sha1-WmbPk9LQtmHYC/akT7ZfXC5OChA=
-
 cssom@^0.5.0:
   version "0.5.0"
   resolved "http://r.npm.sankuai.com/cssom/download/cssom-0.5.0.tgz#d254fa92cd8b6fbd83811b9fbaed34663cc17c36"
@@ -561,14 +551,10 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-data-urls@^2.0.0:
-  version "2.0.0"
-  resolved "http://r.npm.sankuai.com/data-urls/download/data-urls-2.0.0.tgz#156485a72963a970f5d5821aaf642bef2bf2db9b"
-  integrity sha1-FWSFpyljqXD11YIar2Qr7yvy25s=
-  dependencies:
-    abab "^2.0.3"
-    whatwg-mimetype "^2.3.0"
-    whatwg-url "^8.0.0"
+data-uri-to-buffer@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/data-uri-to-buffer/-/data-uri-to-buffer-4.0.0.tgz#b5db46aea50f6176428ac05b73be39a57701a64b"
+  integrity sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==
 
 data-urls@^3.0.1:
   version "3.0.2"
@@ -598,7 +584,7 @@ decamelize@^1.1.2, decamelize@^1.2.0:
   resolved "http://r.npm.sankuai.com/decamelize/download/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
   integrity sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=
 
-decimal.js@^10.2.1, decimal.js@^10.3.1:
+decimal.js@^10.3.1:
   version "10.4.3"
   resolved "http://r.npm.sankuai.com/decimal.js/download/decimal.js-10.4.3.tgz#1044092884d245d1b7f65725fa4ad4c6f781cc23"
   integrity sha1-EEQJKITSRdG39lcl+krUxveBzCM=
@@ -668,13 +654,6 @@ domelementtype@^2.0.1, domelementtype@^2.2.0:
   version "2.3.0"
   resolved "http://r.npm.sankuai.com/domelementtype/download/domelementtype-2.3.0.tgz#5c45e8e869952626331d7aab326d01daf65d589d"
   integrity sha1-XEXo6GmVJiYzHXqrMm0B2vZdWJ0=
-
-domexception@^2.0.1:
-  version "2.0.1"
-  resolved "http://r.npm.sankuai.com/domexception/download/domexception-2.0.1.tgz#fb44aefba793e1574b0af6aed2801d057529f304"
-  integrity sha1-+0Su+6eT4VdLCvau0oAdBXUp8wQ=
-  dependencies:
-    webidl-conversions "^5.0.0"
 
 domexception@^4.0.0:
   version "4.0.0"
@@ -838,6 +817,14 @@ fast-levenshtein@~2.0.6:
   resolved "http://r.npm.sankuai.com/fast-levenshtein/download/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
 
+fetch-blob@^3.1.2, fetch-blob@^3.1.4:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/fetch-blob/-/fetch-blob-3.2.0.tgz#f09b8d4bbd45adc6f0c20b7e787e793e309dcce9"
+  integrity sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==
+  dependencies:
+    node-domexception "^1.0.0"
+    web-streams-polyfill "^3.0.3"
+
 filelist@^1.0.1:
   version "1.0.4"
   resolved "http://r.npm.sankuai.com/filelist/download/filelist-1.0.4.tgz#f78978a1e944775ff9e62e744424f215e58352b5"
@@ -885,15 +872,6 @@ forever-agent@~0.6.1:
   resolved "http://r.npm.sankuai.com/forever-agent/download/forever-agent-0.6.1.tgz#fbc71f0c41adeb37f96c577ad1ed42d8fdacca91"
   integrity sha1-+8cfDEGt6zf5bFd60e1C2P2sypE=
 
-form-data@^3.0.0:
-  version "3.0.1"
-  resolved "http://r.npm.sankuai.com/form-data/download/form-data-3.0.1.tgz#ebd53791b78356a99af9a300d4282c4d5eb9755f"
-  integrity sha1-69U3kbeDVqma+aMA1CgsTV65dV8=
-  dependencies:
-    asynckit "^0.4.0"
-    combined-stream "^1.0.8"
-    mime-types "^2.1.12"
-
 form-data@^4.0.0:
   version "4.0.0"
   resolved "http://r.npm.sankuai.com/form-data/download/form-data-4.0.0.tgz#93919daeaf361ee529584b9b31664dc12c9fa452"
@@ -911,6 +889,13 @@ form-data@~2.3.2:
     asynckit "^0.4.0"
     combined-stream "^1.0.6"
     mime-types "^2.1.12"
+
+formdata-polyfill@^4.0.10:
+  version "4.0.10"
+  resolved "https://registry.yarnpkg.com/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz#24807c31c9d402e002ab3d8c720144ceb8848423"
+  integrity sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==
+  dependencies:
+    fetch-blob "^3.1.2"
 
 fresh@0.5.2:
   version "0.5.2"
@@ -1118,14 +1103,13 @@ hexo-filter-flowchart@^1.0.4:
   dependencies:
     deep-assign "^2.0.0"
 
-hexo-filter-github-emojis@^3.0.4:
-  version "3.0.4"
-  resolved "http://r.npm.sankuai.com/hexo-filter-github-emojis/download/hexo-filter-github-emojis-3.0.4.tgz#c86d41818aa9ae747eb8a99af0f2ea1700ac6a1c"
-  integrity sha1-yG1BgYqprnR+uKma8PLqFwCsahw=
+hexo-filter-github-emojis@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/hexo-filter-github-emojis/-/hexo-filter-github-emojis-3.0.5.tgz#e799c63941f129fb8f3b6191b6a44c1dd4ae13ca"
+  integrity sha512-0Sy5I/9UK8IpwB4EGRKdg+G17qc6YA9R+Rjgme9Qm6kFnbKlFiximzWNmRkZUYEAlY0qm4HJh/t5s5AtXEDciA==
   dependencies:
-    jsdom "^16.4.0"
-    lodash "^4.17.20"
-    node-fetch "^2.6.1"
+    jsdom "^19.0.0"
+    node-fetch "^3.2.3"
     random-ua "^0.0.6"
 
 hexo-front-matter@^3.0.0:
@@ -1327,13 +1311,6 @@ hosted-git-info@^2.1.4:
   resolved "http://r.npm.sankuai.com/hosted-git-info/download/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
   integrity sha1-3/wL+aIcAiCQkPKqaUKeFBTa8/k=
 
-html-encoding-sniffer@^2.0.1:
-  version "2.0.1"
-  resolved "http://r.npm.sankuai.com/html-encoding-sniffer/download/html-encoding-sniffer-2.0.1.tgz#42a6dc4fd33f00281176e8b23759ca4e4fa185f3"
-  integrity sha1-QqbcT9M/ACgRduiyN1nKTk+hhfM=
-  dependencies:
-    whatwg-encoding "^1.0.5"
-
 html-encoding-sniffer@^3.0.0:
   version "3.0.0"
   resolved "http://r.npm.sankuai.com/html-encoding-sniffer/download/html-encoding-sniffer-3.0.0.tgz#2cb1a8cf0db52414776e5b2a7a04d5dd98158de9"
@@ -1362,15 +1339,6 @@ http-errors@2.0.0:
     statuses "2.0.1"
     toidentifier "1.0.1"
 
-http-proxy-agent@^4.0.1:
-  version "4.0.1"
-  resolved "http://r.npm.sankuai.com/http-proxy-agent/download/http-proxy-agent-4.0.1.tgz#8a8c8ef7f5932ccf953c296ca8291b95aa74aa3a"
-  integrity sha1-ioyO9/WTLM+VPClsqCkblap0qjo=
-  dependencies:
-    "@tootallnate/once" "1"
-    agent-base "6"
-    debug "4"
-
 http-proxy-agent@^5.0.0:
   version "5.0.0"
   resolved "http://r.npm.sankuai.com/http-proxy-agent/download/http-proxy-agent-5.0.0.tgz#5129800203520d434f142bc78ff3c170800f2b43"
@@ -1396,13 +1364,6 @@ https-proxy-agent@^5.0.0:
   dependencies:
     agent-base "6"
     debug "4"
-
-iconv-lite@0.4.24:
-  version "0.4.24"
-  resolved "http://r.npm.sankuai.com/iconv-lite/download/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
-  integrity sha1-ICK0sl+93CHS9SSXSkdKr+czkIs=
-  dependencies:
-    safer-buffer ">= 2.1.2 < 3"
 
 iconv-lite@0.6.3:
   version "0.6.3"
@@ -1611,39 +1572,6 @@ jsbn@~0.1.0:
   resolved "http://r.npm.sankuai.com/jsbn/download/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
   integrity sha1-peZUwuWi3rXyAdls77yoDA7y9RM=
 
-jsdom@^16.4.0:
-  version "16.7.0"
-  resolved "http://r.npm.sankuai.com/jsdom/download/jsdom-16.7.0.tgz#918ae71965424b197c819f8183a754e18977b710"
-  integrity sha1-kYrnGWVCSxl8gZ+Bg6dU4Yl3txA=
-  dependencies:
-    abab "^2.0.5"
-    acorn "^8.2.4"
-    acorn-globals "^6.0.0"
-    cssom "^0.4.4"
-    cssstyle "^2.3.0"
-    data-urls "^2.0.0"
-    decimal.js "^10.2.1"
-    domexception "^2.0.1"
-    escodegen "^2.0.0"
-    form-data "^3.0.0"
-    html-encoding-sniffer "^2.0.1"
-    http-proxy-agent "^4.0.1"
-    https-proxy-agent "^5.0.0"
-    is-potential-custom-element-name "^1.0.1"
-    nwsapi "^2.2.0"
-    parse5 "6.0.1"
-    saxes "^5.0.1"
-    symbol-tree "^3.2.4"
-    tough-cookie "^4.0.0"
-    w3c-hr-time "^1.0.2"
-    w3c-xmlserializer "^2.0.0"
-    webidl-conversions "^6.1.0"
-    whatwg-encoding "^1.0.5"
-    whatwg-mimetype "^2.3.0"
-    whatwg-url "^8.5.0"
-    ws "^7.4.6"
-    xml-name-validator "^3.0.0"
-
 jsdom@^19.0.0:
   version "19.0.0"
   resolved "http://r.npm.sankuai.com/jsdom/download/jsdom-19.0.0.tgz#93e67c149fe26816d38a849ea30ac93677e16b6a"
@@ -1742,7 +1670,7 @@ locate-path@^3.0.0:
     p-locate "^3.0.0"
     path-exists "^3.0.0"
 
-lodash@^4.0.0, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.7.0:
+lodash@^4.0.0, lodash@^4.17.15, lodash@^4.17.21:
   version "4.17.21"
   resolved "http://r.npm.sankuai.com/lodash/download/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha1-Z5WRxWTDv/quhFTPCz3zcMPWkRw=
@@ -1938,12 +1866,19 @@ no-case@^3.0.4:
     lower-case "^2.0.2"
     tslib "^2.0.3"
 
-node-fetch@^2.6.1:
-  version "2.6.7"
-  resolved "http://r.npm.sankuai.com/node-fetch/download/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
-  integrity sha1-JN6fuoJ+O0rkTciyAlajeRYAUq0=
+node-domexception@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/node-domexception/-/node-domexception-1.0.0.tgz#6888db46a1f71c0b76b3f7555016b63fe64766e5"
+  integrity sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==
+
+node-fetch@^3.2.3:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-3.3.0.tgz#37e71db4ecc257057af828d523a7243d651d91e4"
+  integrity sha512-BKwRP/O0UvoMKp7GNdwPlObhYGB5DQqwhEDQlNKuoqwVYSxkSZCSbHjnFFmUEtwSKRPU4kNK8PbDYYitwaE3QA==
   dependencies:
-    whatwg-url "^5.0.0"
+    data-uri-to-buffer "^4.0.0"
+    fetch-blob "^3.1.4"
+    formdata-polyfill "^4.0.10"
 
 node-gyp@^3.8.0:
   version "3.8.0"
@@ -2522,7 +2457,7 @@ safe-buffer@^5.0.1, safe-buffer@^5.1.2, safe-buffer@~5.2.0:
   resolved "http://r.npm.sankuai.com/safe-buffer/download/safe-buffer-5.2.1.tgz#1eaf9fa9bdb1fdd4ec75f58f9cdb4e6b7827eec6"
   integrity sha1-Hq+fqb2x/dTsdfWPnNtOa3gn7sY=
 
-"safer-buffer@>= 2.1.2 < 3", "safer-buffer@>= 2.1.2 < 3.0.0", safer-buffer@^2.0.2, safer-buffer@^2.1.0, safer-buffer@^2.1.2, safer-buffer@~2.1.0:
+"safer-buffer@>= 2.1.2 < 3.0.0", safer-buffer@^2.0.2, safer-buffer@^2.1.0, safer-buffer@^2.1.2, safer-buffer@~2.1.0:
   version "2.1.2"
   resolved "http://r.npm.sankuai.com/safer-buffer/download/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha1-RPoWGwGHuVSd2Eu5GAL5vYOFzWo=
@@ -2904,24 +2839,12 @@ tough-cookie@~2.5.0:
     psl "^1.1.28"
     punycode "^2.1.1"
 
-tr46@^2.1.0:
-  version "2.1.0"
-  resolved "http://r.npm.sankuai.com/tr46/download/tr46-2.1.0.tgz#fa87aa81ca5d5941da8cbf1f9b749dc969a4e240"
-  integrity sha1-+oeqgcpdWUHajL8fm3SdyWmk4kA=
-  dependencies:
-    punycode "^2.1.1"
-
 tr46@^3.0.0:
   version "3.0.0"
   resolved "http://r.npm.sankuai.com/tr46/download/tr46-3.0.0.tgz#555c4e297a950617e8eeddef633c87d4d9d6cbf9"
   integrity sha1-VVxOKXqVBhfo7t3vYzyH1NnWy/k=
   dependencies:
     punycode "^2.1.1"
-
-tr46@~0.0.3:
-  version "0.0.3"
-  resolved "http://r.npm.sankuai.com/tr46/download/tr46-0.0.3.tgz#8184fd347dac9cdc185992f3a6622e14b9d9ab6a"
-  integrity sha1-gYT9NH2snNwYWZLzpmIuFLnZq2o=
 
 trim-newlines@^1.0.0:
   version "1.0.0"
@@ -3033,13 +2956,6 @@ w3c-hr-time@^1.0.2:
   dependencies:
     browser-process-hrtime "^1.0.0"
 
-w3c-xmlserializer@^2.0.0:
-  version "2.0.0"
-  resolved "http://r.npm.sankuai.com/w3c-xmlserializer/download/w3c-xmlserializer-2.0.0.tgz#3e7104a05b75146cc60f564380b7f683acf1020a"
-  integrity sha1-PnEEoFt1FGzGD1ZDgLf2g6zxAgo=
-  dependencies:
-    xml-name-validator "^3.0.0"
-
 w3c-xmlserializer@^3.0.0:
   version "3.0.0"
   resolved "http://r.npm.sankuai.com/w3c-xmlserializer/download/w3c-xmlserializer-3.0.0.tgz#06cdc3eefb7e4d0b20a560a5a3aeb0d2d9a65923"
@@ -3061,32 +2977,15 @@ warehouse@^4.0.2:
     rfdc "^1.1.4"
     through2 "^4.0.2"
 
-webidl-conversions@^3.0.0:
-  version "3.0.1"
-  resolved "http://r.npm.sankuai.com/webidl-conversions/download/webidl-conversions-3.0.1.tgz#24534275e2a7bc6be7bc86611cc16ae0a5654871"
-  integrity sha1-JFNCdeKnvGvnvIZhHMFq4KVlSHE=
-
-webidl-conversions@^5.0.0:
-  version "5.0.0"
-  resolved "http://r.npm.sankuai.com/webidl-conversions/download/webidl-conversions-5.0.0.tgz#ae59c8a00b121543a2acc65c0434f57b0fc11aff"
-  integrity sha1-rlnIoAsSFUOirMZcBDT1ew/BGv8=
-
-webidl-conversions@^6.1.0:
-  version "6.1.0"
-  resolved "http://r.npm.sankuai.com/webidl-conversions/download/webidl-conversions-6.1.0.tgz#9111b4d7ea80acd40f5270d666621afa78b69514"
-  integrity sha1-kRG01+qArNQPUnDWZmIa+ni2lRQ=
+web-streams-polyfill@^3.0.3:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/web-streams-polyfill/-/web-streams-polyfill-3.2.1.tgz#71c2718c52b45fd49dbeee88634b3a60ceab42a6"
+  integrity sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==
 
 webidl-conversions@^7.0.0:
   version "7.0.0"
   resolved "http://r.npm.sankuai.com/webidl-conversions/download/webidl-conversions-7.0.0.tgz#256b4e1882be7debbf01d05f0aa2039778ea080a"
   integrity sha1-JWtOGIK+feu/AdBfCqIDl3jqCAo=
-
-whatwg-encoding@^1.0.5:
-  version "1.0.5"
-  resolved "http://r.npm.sankuai.com/whatwg-encoding/download/whatwg-encoding-1.0.5.tgz#5abacf777c32166a51d085d6b4f3e7d27113ddb0"
-  integrity sha1-WrrPd3wyFmpR0IXWtPPn0nET3bA=
-  dependencies:
-    iconv-lite "0.4.24"
 
 whatwg-encoding@^2.0.0:
   version "2.0.0"
@@ -3094,11 +2993,6 @@ whatwg-encoding@^2.0.0:
   integrity sha1-52NfWX/YcCCFhiaAWicp+naYrFM=
   dependencies:
     iconv-lite "0.6.3"
-
-whatwg-mimetype@^2.3.0:
-  version "2.3.0"
-  resolved "http://r.npm.sankuai.com/whatwg-mimetype/download/whatwg-mimetype-2.3.0.tgz#3d4b1e0312d2079879f826aff18dbeeca5960fbf"
-  integrity sha1-PUseAxLSB5h5+Cav8Y2+7KWWD78=
 
 whatwg-mimetype@^3.0.0:
   version "3.0.0"
@@ -3120,23 +3014,6 @@ whatwg-url@^11.0.0:
   dependencies:
     tr46 "^3.0.0"
     webidl-conversions "^7.0.0"
-
-whatwg-url@^5.0.0:
-  version "5.0.0"
-  resolved "http://r.npm.sankuai.com/whatwg-url/download/whatwg-url-5.0.0.tgz#966454e8765462e37644d3626f6742ce8b70965d"
-  integrity sha1-lmRU6HZUYuN2RNNib2dCzotwll0=
-  dependencies:
-    tr46 "~0.0.3"
-    webidl-conversions "^3.0.0"
-
-whatwg-url@^8.0.0, whatwg-url@^8.5.0:
-  version "8.7.0"
-  resolved "http://r.npm.sankuai.com/whatwg-url/download/whatwg-url-8.7.0.tgz#656a78e510ff8f3937bc0bcbe9f5c0ac35941b77"
-  integrity sha1-ZWp45RD/jzk3vAvL6fXArDWUG3c=
-  dependencies:
-    lodash "^4.7.0"
-    tr46 "^2.1.0"
-    webidl-conversions "^6.1.0"
 
 which-module@^2.0.0:
   version "2.0.0"
@@ -3193,20 +3070,10 @@ wrappy@1:
   resolved "http://r.npm.sankuai.com/wrappy/download/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-ws@^7.4.6:
-  version "7.5.9"
-  resolved "http://r.npm.sankuai.com/ws/download/ws-7.5.9.tgz#54fa7db29f4c7cec68b1ddd3a89de099942bb591"
-  integrity sha1-VPp9sp9MfOxosd3TqJ3gmZQrtZE=
-
 ws@^8.2.3:
   version "8.11.0"
   resolved "http://r.npm.sankuai.com/ws/download/ws-8.11.0.tgz#6a0d36b8edfd9f96d8b25683db2f8d7de6e8e143"
   integrity sha1-ag02uO39n5bYslaD2y+Nfebo4UM=
-
-xml-name-validator@^3.0.0:
-  version "3.0.0"
-  resolved "http://r.npm.sankuai.com/xml-name-validator/download/xml-name-validator-3.0.0.tgz#6ae73e06de4d8c6e47f9fb181f78d648ad457c6a"
-  integrity sha1-auc+Bt5NjG5H+fsYH3jWSK1FfGo=
 
 xml-name-validator@^4.0.0:
   version "4.0.0"
