@@ -3,12 +3,12 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: You0
 subtitle: ''
 description: ''
 keywords:
-author: John Doe
-language: en
+author: You0
+language: zh-ch
 timezone: ''
 
 # URL
@@ -105,4 +105,4 @@ deploy:
   type: git
   repo:
     github: git@github.com:You0/You0.github.io.git
-  branch: master
+  branch: blog
