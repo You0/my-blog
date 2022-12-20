@@ -1,0 +1,66 @@
+# main menu navigation
+menu:
+  Home: /
+  About: /about
+  Archive: /archives
+
+widgets:
+  - tag
+  - archive
+  - recent_posts
+  - category
+  - profile
+
+# social config
+social:
+  github: you0
+
+user:
+  name: You0
+  avatar: images/avatar.jpeg
+  location: 银河
+  description: 我可以在这陪着你吗
+  footnotes: # footnotes
+
+# documents: https://github.com/utterance/utterances
+# API config: https://utteranc.es/
+comment_utteranc:
+  enable: true
+  repo: you0/You0.github.io # your blog repo
+
+
+# documents: https://valine.js.org/quickstart.html
+comment_valine:
+  enable: false
+  appId:
+  appKey:
+
+comment_disqus:
+    enable: false
+    url:  # the url of your website main domain like this https://xxx.xxx/
+    name: # the short name in disqus
+
+# dark
+# light
+# user-can-set
+appearance: auto # Default value is auto
+
+# Miscellaneous
+favicon: images/favicon.ico
+
+friend_links:
+  - title: Github
+    link: https://www.github.com/You0
+
+# Google Analytics
+ga_track_id:
+ga_domain:
+
+# Baidu Analytics
+ba_track_id:
+
+# picture of about page
+about_pic: about.png
+
+image_zoom:
+  enable: true
