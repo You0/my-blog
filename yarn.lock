@@ -1145,21 +1145,21 @@ hexo-fs@^3.0.1, hexo-fs@^3.1.0:
     graceful-fs "^4.1.11"
     hexo-util "^2.0.0"
 
-hexo-generator-archive@^2.0.0:
+hexo-generator-archive@1.0.0:
   version "1.0.0"
   resolved "http://r.npm.sankuai.com/hexo-generator-archive/download/hexo-generator-archive-1.0.0.tgz#ad2afb12232a65e2f8608fc1ca3f19162fb63786"
   integrity sha1-rSr7EiMqZeL4YI/Byj8ZFi+2N4Y=
   dependencies:
     hexo-pagination "1.0.0"
 
-hexo-generator-category@^2.0.0:
+hexo-generator-category@1.0.0:
   version "1.0.0"
   resolved "http://r.npm.sankuai.com/hexo-generator-category/download/hexo-generator-category-1.0.0.tgz#cd2a2b03eb326da3ef821d6e29408488cc132eb5"
   integrity sha1-zSorA+sybaPvgh1uKUCEiMwTLrU=
   dependencies:
     hexo-pagination "1.0.0"
 
-hexo-generator-index@^3.0.0:
+hexo-generator-index@2.0.0:
   version "2.0.0"
   resolved "http://r.npm.sankuai.com/hexo-generator-index/download/hexo-generator-index-2.0.0.tgz#15e71f4d28ee9d2172e2d77e8d1dba04882edc8f"
   integrity sha1-FecfTSjunSFy4td+jR26BIgu3I8=
@@ -1175,7 +1175,7 @@ hexo-generator-search@^2.4.2:
     nunjucks "^3.0.1"
     utils-merge "^1.0.0"
 
-hexo-generator-tag@^2.0.0:
+hexo-generator-tag@1.0.0:
   version "1.0.0"
   resolved "http://r.npm.sankuai.com/hexo-generator-tag/download/hexo-generator-tag-1.0.0.tgz#54ec23de9409c75584ea81e36057a59031b022f1"
   integrity sha1-VOwj3pQJx1WE6oHjYFelkDGwIvE=
@@ -1215,7 +1215,7 @@ hexo-renderer-ejs@^2.0.0:
   dependencies:
     ejs "^3.1.6"
 
-hexo-renderer-marked@^6.0.0:
+hexo-renderer-marked@5.0.0:
   version "5.0.0"
   resolved "http://r.npm.sankuai.com/hexo-renderer-marked/download/hexo-renderer-marked-5.0.0.tgz#7b71f086bc127ce403452b958c3ae97b29f65cff"
   integrity sha1-e3HwhrwSfOQDRSuVjDrpeyn2XP8=
