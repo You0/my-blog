@@ -63,7 +63,7 @@ categories: 90days
     - 搭建了页面的路由
     - 开发了登陆页面
     目前效果图：
-    ![](images/90days/0day/WX20230723-175339.jpg)
+    ![](images/90days/0day/WX20230723-175339.png)
 
 
 * 学习： 
@@ -77,7 +77,7 @@ categories: 90days
 
 * 娱乐：
     - 无
-    
+
 * 其他：
     - 研究怎么美白+去掉黑眼圈
 
