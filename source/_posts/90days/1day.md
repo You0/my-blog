@@ -3,7 +3,6 @@ title: 【1day】 上班耗费了我大量心力了。。。。
 date: 2023-07-24 23:46:24
 categories: 90days
 ---
-![示例图片](/images/90days/1day/WX20230723-233618.png)
 
 #### 那么今天都干了什么：
 * 改变自己你的行动：
@@ -19,6 +18,8 @@ categories: 90days
 
 * 学习： 
     - 看RN的Fabric源码，我真的好笨啊。看不懂啊看不懂。
+    - 想跟着调试的。。但是为什么开启了Fabric进debug还是进的非Fabric啊！！！！！！！！
+![示例图片](/images/90days/1day/QQ20230725-002053.png)
 
 * 英语单词记忆
     - 暂无
