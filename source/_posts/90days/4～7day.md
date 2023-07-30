@@ -4,16 +4,16 @@ date: 2023-07-31 00:16:24
 categories: 90days
 ---
 哈哈哈哈放几张美女图。加载可能比较慢，我已经压缩过了。
-![示例图片](/images/90days/1day/_DSC6267.jpg)
-![示例图片](/images/90days/1day/_DSC6277.jpg)
-![示例图片](/images/90days/1day/_DSC6317.jpg)
-![示例图片](/images/90days/1day/_DSC6420.jpg)
-![示例图片](/images/90days/1day/_DSC6427.jpg)
-![示例图片](/images/90days/1day/_DSC6483.jpg)
-![示例图片](/images/90days/1day/_DSC6485.jpg)
-![示例图片](/images/90days/1day/_DSC6518.jpg)
-![示例图片](/images/90days/1day/_DSC6560.jpg)
-![示例图片](/images/90days/1day/_DSC6564.jpg)
+![示例图片](/images/90days/4-7days/_DSC6267.jpg)
+![示例图片](/images/90days/4-7days/_DSC6277.jpg)
+![示例图片](/images/90days/4-7days/_DSC6317.jpg)
+![示例图片](/images/90days/4-7days/_DSC6420.jpg)
+![示例图片](/images/90days/4-7days/_DSC6427.jpg)
+![示例图片](/images/90days/4-7days/_DSC6483.jpg)
+![示例图片](/images/90days/4-7days/_DSC6485.jpg)
+![示例图片](/images/90days/4-7days/_DSC6518.jpg)
+![示例图片](/images/90days/4-7days/_DSC6560.jpg)
+![示例图片](/images/90days/4-7days/_DSC6564.jpg)
 
 可惜把同学的相机摔了一下，金额：-500，难过.
 试了试相机自己也想买了！哈哈哈，等这个月发工资吧。
