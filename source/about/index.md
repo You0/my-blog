@@ -6,4 +6,4 @@ layout: about
 
 ## 关于我
 
-懂点Android、懂点前端的菜鸟
+一个想逃避现实的人
