@@ -1,0 +1,26 @@
+name: Deploy Admin App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'admin/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./admin
+          force_orphan: true
+          commit_message: 'deploy admin @ ${{ github.sha }}'
