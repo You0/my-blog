@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#fffefa;-webkit-text-size-adjust:100%;}
+  #editor{
+    min-height:100%;box-sizing:border-box;padding:22px 22px 60px;
+    font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif;
+    font-size:16px;line-height:1.9;color:#50564b;outline:none;word-wrap:break-word;
+  }
+  #editor:empty:before{content:attr(data-placeholder);color:#92968a;}
+  #editor p,#editor div{margin:0 0 .9em;}
+  #editor h1,#editor h2,#editor h3,#editor h4{margin:.8em 0 .4em;line-height:1.4;}
+  #editor h1{font-size:22px;}
+  #editor h2{font-size:20px;border-bottom:1px solid #e4e5dc;padding-bottom:.3em;}
+  #editor h3{font-size:18px;}
+  #editor blockquote{margin:.6em 0;padding:2px 14px;border-left:4px solid #789479;color:#697563;background:#f0f2ea;}
+  #editor pre{background:#354b39;color:#f4f3ef;padding:12px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;font-family:monospace;font-size:14px;}
+  #editor code{background:#f0f2ea;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:14px;color:#47523e;}
+  #editor pre code{background:none;padding:0;color:inherit;}
+  #editor img{max-width:100%;height:auto;border-radius:10px;display:block;margin:.5em auto;}
+  #editor a{color:#789479;}
+  #editor ul,#editor ol{padding-left:1.4em;margin:.4em 0;}
+  #editor hr{border:none;border-top:1px solid #e4e5dc;margin:1em 0;}
+</style>
+</head>
+<body>
+<div id="editor" contenteditable="true" tabindex="0" data-placeholder="开始写点什么…">{{CONTENT}}</div>
+<script>
+  function el(){return document.getElementById('editor');}
+  function exec(cmd,val){ el().focus(); try{document.execCommand(cmd,false,val);}catch(e){} }
+  function focusEditor(){
+    var e = el();
+    if(!e) return;
+    if(document.activeElement !== e) e.focus();
+    // 空 contenteditable 经常没有光标，输入法就无处插字：确保存在一个折叠光标
+    try{
+      var s = window.getSelection();
+      if(s && s.rangeCount === 0){
+        var r = document.createRange();
+        r.selectNodeContents(e);
+        r.collapse(false);
+        s.removeAllRanges();
+        s.addRange(r);
+      }
+    }catch(err){}
+  }
+  function insertImage(url){ exec('insertImage', url); }
+  function insertLink(url){ exec('createLink', url); }
+
+  function notifyCount(){
+    try{
+      var e=el();
+      var t=(e.innerText!==undefined?e.innerText:e.textContent)||'';
+      if(window.ZhiJian) window.ZhiJian.onCount(t.trim().length);
+    }catch(err){}
+  }
+  el().addEventListener('input', notifyCount);
+
+  // Android WebView 里 contenteditable 需要先拿到 DOM 焦点 + 光标，配合原生层 focus 才能输入
+  el().addEventListener('touchstart', focusEditor);
+  el().addEventListener('touchend', function(){ if(document.activeElement!==el()) focusEditor(); });
+
+  function inlineMd(node){
+    var out='';
+    for(var i=0;i<node.childNodes.length;i++){
+      var n=node.childNodes[i];
+      if(n.nodeType===3){ out+=n.nodeValue; continue; }
+      if(n.nodeType!==1){ continue; }
+      var tag=n.tagName.toLowerCase();
+      var inner=function(){return inlineMd(n);};
+      if(tag==='br'){ out+='\n'; }
+      else if(tag==='strong'||tag==='b'){ out+='**'+inner()+'**'; }
+      else if(tag==='em'||tag==='i'){ out+='*'+inner()+'*'; }
+      else if(tag==='s'||tag==='strike'||tag==='del'){ out+='~~'+inner()+'~~'; }
+      else if(tag==='code'){ out+='`'+inner()+'`'; }
+      else if(tag==='a'){ out+='['+inner()+']('+(n.getAttribute('href')||'')+')'; }
+      else if(tag==='img'){ out+='!['+(n.getAttribute('alt')||'')+']('+(n.getAttribute('src')||'')+')'; }
+      else { out+=inner(); }
+    }
+    return out;
+  }
+
+  function liItems(ul){ var r=[]; for(var i=0;i<ul.childNodes.length;i++){var c=ul.childNodes[i]; if(c.nodeType===1&&c.tagName.toLowerCase()==='li') r.push(c);} return r; }
+
+  function blockChildren(node){
+    var parts=[];
+    for(var i=0;i<node.childNodes.length;i++){
+      var n=node.childNodes[i];
+      if(n.nodeType===3){
+        var t=n.nodeValue.replace(/\n+$/,'');
+        if(t.trim()) parts.push(t);
+        continue;
+      }
+      if(n.nodeType!==1) continue;
+      var tag=n.tagName.toLowerCase();
+      if(tag==='br'){ continue; }
+      if(tag==='p'||tag==='div'){
+        var t=inlineMd(n).trim();
+        if(t) parts.push(t);
+        continue;
+      }
+      if(tag==='hr'){ parts.push('---'); continue; }
+      if(/^h[1-6]$/.test(tag)){
+        var lvl=parseInt(tag.charAt(1),10);
+        var h=inlineMd(n).trim();
+        parts.push(Array(lvl+1).join('#')+' '+h);
+        continue;
+      }
+      if(tag==='ul'||tag==='ol'){
+        var ordered=(tag==='ol'); var idx=0;
+        var items=liItems(n);
+        for(var j=0;j<items.length;j++){
+          idx++;
+          parts.push((ordered?idx+'. ':'- ')+inlineMd(items[j]).trim());
+        }
+        continue;
+      }
+      if(tag==='blockquote'){
+        var b=blockChildren(n).trim();
+        parts.push(b.split('\n').map(function(l){return '> '+l;}).join('\n'));
+        continue;
+      }
+      if(tag==='pre'){
+        var code=(n.innerText||n.textContent||'').replace(/\n$/,'');
+        parts.push('```\n'+code+'\n```');
+        continue;
+      }
+      var t5=inlineMd(n).trim();
+      if(t5) parts.push(t5);
+    }
+    return parts.join('\n\n');
+  }
+
+  function htmlToMarkdown(root){ return blockChildren(root||el()).trim(); }
+  notifyCount();
+</script>
+</body>
+</html>

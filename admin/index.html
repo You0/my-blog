@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>博客写作</title>
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand">博客写作</h1>
+    <nav class="tabs">
+      <button class="tab active" data-view="editor">写文章</button>
+      <button class="tab" data-view="drafts">草稿</button>
+      <button class="tab" data-view="posts">已发布</button>
+      <button class="tab" data-view="settings">设置</button>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- 写文章 -->
+    <section id="view-editor" class="view active">
+      <div class="field">
+        <input id="title" type="text" placeholder="标题">
+      </div>
+      <div class="field-row">
+        <input id="tags" type="text" placeholder="标签（逗号分隔）">
+        <input id="categories" type="text" placeholder="分类（逗号分隔）">
+      </div>
+      <div class="field-row">
+        <input id="date" type="text" placeholder="日期">
+      </div>
+      <div class="toolbar">
+        <button id="btn-preview" class="ghost">预览</button>
+        <span class="spacer"></span>
+        <button id="btn-save" class="ghost">存草稿</button>
+        <button id="btn-publish" class="primary">发布</button>
+      </div>
+      <div class="editor-area">
+        <textarea id="body" placeholder="正文（Markdown）"></textarea>
+        <div id="preview" class="preview hidden"></div>
+      </div>
+    </section>
+
+    <!-- 草稿 -->
+    <section id="view-drafts" class="view">
+      <div id="draft-list" class="list"></div>
+    </section>
+
+    <!-- 已发布 -->
+    <section id="view-posts" class="view">
+      <div class="list-toolbar">
+        <button id="btn-refresh" class="ghost">刷新</button>
+      </div>
+      <div id="post-list" class="list"></div>
+    </section>
+
+    <!-- 设置 -->
+    <section id="view-settings" class="view">
+      <div class="settings-card">
+        <div class="field">
+          <label for="set-token">GitHub Token（PAT）</label>
+          <input id="set-token" type="password" placeholder="ghp_... 或 github_pat_...">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="set-owner">仓库拥有者</label>
+            <input id="set-owner" type="text" placeholder="You0">
+          </div>
+          <div class="field">
+            <label for="set-repo">仓库名</label>
+            <input id="set-repo" type="text" placeholder="my-blog">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="set-branch">分支</label>
+            <input id="set-branch" type="text" placeholder="main">
+          </div>
+          <div class="field">
+            <label for="set-posts">文章目录</label>
+            <input id="set-posts" type="text" placeholder="source/_posts">
+          </div>
+        </div>
+        <div class="field">
+          <label for="set-author">默认作者</label>
+          <input id="set-author" type="text" placeholder="You0">
+        </div>
+        <div class="hint">
+          Token 只保存在本机浏览器（localStorage），不会上传到别处。需要给仓库
+          <b>Contents（内容）读写</b> 权限。
+        </div>
+        <div class="actions">
+          <button id="btn-test" class="ghost">测试连接</button>
+          <button id="btn-save-settings" class="primary">保存设置</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
