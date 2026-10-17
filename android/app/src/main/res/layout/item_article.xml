@@ -1,72 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="20dp"
     android:background="@drawable/bg_article"
-    android:orientation="vertical"
-    android:paddingLeft="26dp"
-    android:paddingTop="23dp"
-    android:paddingRight="26dp"
-    android:paddingBottom="23dp">
-
-    <FrameLayout
+    android:foreground="?android:attr/selectableItemBackground"
+    android:padding="20dp"
+    android:orientation="vertical">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/tv_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:letterSpacing="0.1"
-            android:textColor="@color/date_text"
-            android:textSize="11sp" />
-
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
         <TextView
             android:id="@+id/tv_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
             android:background="@drawable/bg_badge"
-            android:paddingLeft="8dp"
-            android:paddingTop="4dp"
-            android:paddingRight="8dp"
-            android:paddingBottom="4dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
             android:textColor="@color/badge_text"
             android:textSize="10sp" />
-    </FrameLayout>
-
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:textColor="@color/date_text"
+            android:textSize="11sp" />
+    </LinearLayout>
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="11dp"
-        android:lineSpacingMultiplier="1.6"
+        android:layout_marginTop="12dp"
         android:textColor="@color/text_main"
-        android:textSize="17sp" />
-
+        android:textSize="19sp"
+        android:fontFamily="sans-serif-medium"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:lineSpacingExtra="4dp" />
     <HorizontalScrollView
         android:id="@+id/scroll_imgs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="11dp"
-        android:clipToPadding="false"
+        android:layout_marginTop="14dp"
         android:scrollbars="none"
         android:visibility="gone">
-
         <LinearLayout
             android:id="@+id/img_row"
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" />
+            android:layout_height="wrap_content" />
     </HorizontalScrollView>
-
-    <TextView
-        android:id="@+id/tv_desc"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="11dp"
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp" />
+        android:gravity="center_vertical"
+        android:layout_marginTop="14dp">
+        <TextView
+            android:id="@+id/tv_desc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:maxLines="2"
+            android:ellipsize="end" />
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="12dp"
+            android:src="@drawable/ic_arrow"
+            android:importantForAccessibility="no" />
+    </LinearLayout>
 </LinearLayout>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="12dp"
+        android:focusableInTouchMode="true">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="标签" android:labelFor="@id/meta_tags" android:textColor="@color/text_secondary" android:textSize="12sp" />
+        <EditText android:id="@+id/meta_tags" style="@style/UiField" android:hint="用逗号分隔，例如：生活，灵感" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="分类" android:labelFor="@id/meta_categories" android:textColor="@color/text_secondary" android:textSize="12sp" />
+        <EditText android:id="@+id/meta_categories" style="@style/UiField" android:hint="这篇文章属于哪个主题？" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="发布日期与时间" android:labelFor="@id/meta_date" android:textColor="@color/text_secondary" android:textSize="12sp" />
+        <EditText android:id="@+id/meta_date" style="@style/UiField" android:focusable="false" android:clickable="true" android:hint="选择日期与时间" android:contentDescription="选择文章发布日期与时间" />
+    </LinearLayout>
+</ScrollView>

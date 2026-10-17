@@ -17,6 +17,7 @@ class PreviewActivity : Activity() {
         val baseUrl = intent.getStringExtra("baseUrl") ?: "https://you0.github.io/"
 
         val web = findViewById<WebView>(R.id.web_view)
+        (web.parent as View).clipToOutline = true
         web.settings.javaScriptEnabled = false
         web.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null)
 

@@ -4,33 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <style>
-  html,body{margin:0;padding:0;height:100%;background:#fffefa;-webkit-text-size-adjust:100%;}
+  html,body{margin:0;padding:0;height:100%;background:#ffffff;-webkit-text-size-adjust:100%;}
   #editor{
-    min-height:100%;box-sizing:border-box;padding:22px 22px 60px;
+    min-height:100%;box-sizing:border-box;padding:20px 20px 80px;
     font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",sans-serif;
-    font-size:16px;line-height:1.9;color:#50564b;outline:none;word-wrap:break-word;
+    font-size:16px;line-height:1.9;color:#45534d;outline:none;word-wrap:break-word;
   }
-  #editor:empty:before{content:attr(data-placeholder);color:#92968a;}
+  #editor:empty:before{content:attr(data-placeholder);color:#829087;}
   #editor p,#editor div{margin:0 0 .9em;}
   #editor h1,#editor h2,#editor h3,#editor h4{margin:.8em 0 .4em;line-height:1.4;}
   #editor h1{font-size:22px;}
-  #editor h2{font-size:20px;border-bottom:1px solid #e4e5dc;padding-bottom:.3em;}
+  #editor h2{font-size:20px;border-bottom:1px solid #e1e8e1;padding-bottom:.3em;}
   #editor h3{font-size:18px;}
-  #editor blockquote{margin:.6em 0;padding:2px 14px;border-left:4px solid #789479;color:#697563;background:#f0f2ea;}
-  #editor pre{background:#354b39;color:#f4f3ef;padding:12px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;font-family:monospace;font-size:14px;}
-  #editor code{background:#f0f2ea;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:14px;color:#47523e;}
+  #editor blockquote{margin:.6em 0;padding:2px 14px;border-left:4px solid #235c4b;color:#607164;background:#eff3ed;}
+  #editor pre{background:#183f34;color:#f6f7f3;padding:12px;border-radius:8px;overflow-x:auto;white-space:pre-wrap;font-family:monospace;font-size:14px;}
+  #editor code{background:#eff3ed;padding:2px 5px;border-radius:4px;font-family:monospace;font-size:14px;color:#344d40;}
   #editor pre code{background:none;padding:0;color:inherit;}
   #editor img{max-width:100%;height:auto;border-radius:10px;display:block;margin:.5em auto;}
-  #editor a{color:#789479;}
+  #editor a{color:#235c4b;}
   #editor ul,#editor ol{padding-left:1.4em;margin:.4em 0;}
-  #editor hr{border:none;border-top:1px solid #e4e5dc;margin:1em 0;}
+  #editor hr{border:none;border-top:1px solid #e1e8e1;margin:1em 0;}
 </style>
 </head>
 <body>
-<div id="editor" contenteditable="true" tabindex="0" data-placeholder="开始写点什么…">{{CONTENT}}</div>
+<div id="editor" contenteditable="true" tabindex="0" data-placeholder="在这里，写下你的第一个想法…">{{CONTENT}}</div>
 <script>
   function el(){return document.getElementById('editor');}
-  function exec(cmd,val){ el().focus(); try{document.execCommand(cmd,false,val);}catch(e){} }
+  function exec(cmd,val){ restoreSelection(); el().focus(); try{document.execCommand(cmd,false,val);}catch(e){} notifyContent(); }
   function focusEditor(){
     var e = el();
     if(!e) return;
@@ -57,7 +57,20 @@
       if(window.ZhiJian) window.ZhiJian.onCount(t.trim().length);
     }catch(err){}
   }
-  el().addEventListener('input', notifyCount);
+  function notifyContent(){
+    notifyCount();
+    try { if(window.ZhiJian) window.ZhiJian.onContent(htmlToMarkdown(), (el().innerText || '').trim().length); } catch(err){}
+  }
+  var savedRange = null;
+  document.addEventListener('selectionchange', function(){
+    var selection = window.getSelection();
+    if(selection.rangeCount && el().contains(selection.anchorNode)) savedRange = selection.getRangeAt(0).cloneRange();
+  });
+  function restoreSelection(){
+    if(!savedRange) return;
+    try { var s=window.getSelection(); s.removeAllRanges(); s.addRange(savedRange); } catch(err){}
+  }
+  el().addEventListener('input', notifyContent);
 
   // Android WebView 里 contenteditable 需要先拿到 DOM 焦点 + 光标，配合原生层 focus 才能输入
   el().addEventListener('touchstart', focusEditor);
@@ -86,51 +99,44 @@
   function liItems(ul){ var r=[]; for(var i=0;i<ul.childNodes.length;i++){var c=ul.childNodes[i]; if(c.nodeType===1&&c.tagName.toLowerCase()==='li') r.push(c);} return r; }
 
   function blockChildren(node){
-    var parts=[];
+    var parts=[], pending='';
+    function flush(){ if(pending.trim()) parts.push(pending.trim()); pending=''; }
     for(var i=0;i<node.childNodes.length;i++){
       var n=node.childNodes[i];
-      if(n.nodeType===3){
-        var t=n.nodeValue.replace(/\n+$/,'');
-        if(t.trim()) parts.push(t);
-        continue;
-      }
+      if(n.nodeType===3){ pending+=n.nodeValue; continue; }
       if(n.nodeType!==1) continue;
       var tag=n.tagName.toLowerCase();
-      if(tag==='br'){ continue; }
+      if(tag==='br'){ pending+='\n'; continue; }
+      if(!/^(p|div|hr|h[1-6]|ul|ol|blockquote|pre)$/.test(tag)){
+        // Preserve contiguous inline formatting, including bold text at the root.
+        var wrapper=document.createElement('span');
+        wrapper.appendChild(n.cloneNode(true));
+        pending+=inlineMd(wrapper);
+        continue;
+      }
+      flush();
       if(tag==='p'||tag==='div'){
-        var t=inlineMd(n).trim();
+        var t=blockChildren(n).trim();
         if(t) parts.push(t);
-        continue;
-      }
-      if(tag==='hr'){ parts.push('---'); continue; }
-      if(/^h[1-6]$/.test(tag)){
+      } else if(tag==='hr'){
+        parts.push('---');
+      } else if(/^h[1-6]$/.test(tag)){
         var lvl=parseInt(tag.charAt(1),10);
-        var h=inlineMd(n).trim();
-        parts.push(Array(lvl+1).join('#')+' '+h);
-        continue;
-      }
-      if(tag==='ul'||tag==='ol'){
-        var ordered=(tag==='ol'); var idx=0;
-        var items=liItems(n);
+        parts.push(Array(lvl+1).join('#')+' '+inlineMd(n).trim());
+      } else if(tag==='ul'||tag==='ol'){
+        var items=liItems(n), lines=[];
         for(var j=0;j<items.length;j++){
-          idx++;
-          parts.push((ordered?idx+'. ':'- ')+inlineMd(items[j]).trim());
+          lines.push((tag==='ol'?(j+1)+'. ':'- ')+inlineMd(items[j]).trim());
         }
-        continue;
-      }
-      if(tag==='blockquote'){
-        var b=blockChildren(n).trim();
-        parts.push(b.split('\n').map(function(l){return '> '+l;}).join('\n'));
-        continue;
-      }
-      if(tag==='pre'){
+        parts.push(lines.join('\n'));
+      } else if(tag==='blockquote'){
+        parts.push(blockChildren(n).trim().split('\n').map(function(l){return '> '+l;}).join('\n'));
+      } else if(tag==='pre'){
         var code=(n.innerText||n.textContent||'').replace(/\n$/,'');
         parts.push('```\n'+code+'\n```');
-        continue;
       }
-      var t5=inlineMd(n).trim();
-      if(t5) parts.push(t5);
     }
+    flush();
     return parts.join('\n\n');
   }
 

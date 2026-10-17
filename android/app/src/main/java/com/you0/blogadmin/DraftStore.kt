@@ -15,6 +15,9 @@ object DraftStore {
         val date: String,
         val body: String,
         val updatedAt: Long,
+        val path: String? = null,
+        val sha: String? = null,
+        val author: String = "",
     )
 
     private fun file(ctx: Context): File = File(ctx.filesDir, "drafts.json")
@@ -35,6 +38,9 @@ object DraftStore {
                     date = o.optString("date"),
                     body = o.optString("body"),
                     updatedAt = o.optLong("updatedAt"),
+                    path = o.optString("path").takeIf { it.isNotBlank() && it != "null" },
+                    sha = o.optString("sha").takeIf { it.isNotBlank() && it != "null" },
+                    author = o.optString("author"),
                 )
             )
         }
@@ -56,6 +62,9 @@ object DraftStore {
             put("date", d.date)
             put("body", d.body)
             put("updatedAt", d.updatedAt)
+            put("path", d.path)
+            put("sha", d.sha)
+            put("author", d.author)
         }
         if (idx >= 0) arr.put(idx, o) else arr.put(o)
         f.writeText(arr.toString())

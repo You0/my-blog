@@ -2,6 +2,8 @@ package com.you0.blogadmin
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,6 +11,14 @@ import android.graphics.Matrix
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
+import android.content.res.ColorStateList
+import android.view.inputmethod.InputMethodManager
+import android.content.Context
+import android.text.method.PasswordTransformationMethod
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +30,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
@@ -34,6 +45,7 @@ import java.net.URL
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Calendar
 import java.util.Locale
 import java.util.concurrent.Executors
 
@@ -64,6 +76,19 @@ class MainActivity : Activity() {
     private lateinit var lvDrafts: ListView
     private lateinit var lvPosts: ListView
 
+    private var activePanel = "write"
+    private var focused = false
+    private var keyboardVisible = false
+    private var editingBody = false
+    private var editorLoading = true
+    private var dirty = false
+    private var latestMarkdown = ""
+    private var publishing = false
+    private var loadingPosts = false
+    private var visibleDrafts = emptyList<DraftStore.Draft>()
+    private var visiblePosts = emptyList<Github.PostFile>()
+    private val handler = Handler(Looper.getMainLooper())
+    private val autosave = Runnable { if (dirty) saveDraft(false) }
     private var previewOn = false
     private var drafts = emptyList<DraftStore.Draft>()
     private var posts = emptyList<Github.PostFile>()
@@ -91,14 +116,11 @@ class MainActivity : Activity() {
         currentAuthor = cfg.author
         bindViews()
         bindEvents()
+        val resumeId = getSharedPreferences("writing_session", MODE_PRIVATE).getString("draft", null)
         resetEditor()
-        if (cfg.token.isBlank()) {
-            showPanel("settings")
-            fillSettings()
-            toast("请先在设置里填写 GitHub Token")
-        } else {
-            showPanel("write")
-        }
+        // Writing works offline; connecting a repository is only needed for publishing.
+        DraftStore.list(this).firstOrNull { it.id == resumeId }?.let { openDraft(it) }
+        showPanel("write")
     }
 
     private fun bindViews() {
@@ -113,6 +135,7 @@ class MainActivity : Activity() {
         navSettings = findViewById(R.id.nav_settings)
 
         paperCard = findViewById(R.id.paper_card)
+        (paperCard.parent as View).clipToOutline = true
         etTitle = findViewById(R.id.et_title)
         etTags = findViewById(R.id.et_tags)
         etCategories = findViewById(R.id.et_categories)
@@ -131,6 +154,7 @@ class MainActivity : Activity() {
         // 触摸正文时让 WebView 原生层先拿到焦点，contenteditable 才能弹出软键盘
         richEditor.setOnTouchListener { v, e ->
             if (e.action == MotionEvent.ACTION_DOWN || e.action == MotionEvent.ACTION_UP) {
+                editingBody = true
                 if (!v.hasFocus()) {
                     v.requestFocus()
                     v.requestFocusFromTouch()
@@ -139,27 +163,79 @@ class MainActivity : Activity() {
             false
         }
         richEditor.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String) {
+                editorLoading = false
+            }
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean = true
         }
         richEditor.addJavascriptInterface(object {
             @JavascriptInterface
             fun onCount(n: Int) {
-                runOnUiThread { tvCount.text = "$n 字 · 自由记录" }
+                runOnUiThread { tvCount.text = "$n 字 · 预计阅读 ${maxOf(1, (n + 399) / 400)} 分钟" }
+            }
+            @JavascriptInterface
+            fun onContent(markdown: String, count: Int) {
+                runOnUiThread {
+                    val rawPrefix = "https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/source/images/"
+                    latestMarkdown = markdown.replace(rawPrefix, "/images/")
+                    tvCount.text = "$count 字 · 预计阅读 ${maxOf(1, (count + 399) / 400)} 分钟"
+                    if (!editorLoading) markDirty()
+                }
             }
         }, "ZhiJian")
 
         webPreview.settings.javaScriptEnabled = false
+        val root = findViewById<View>(R.id.app_root)
+        root.viewTreeObserver.addOnGlobalLayoutListener {
+            val frame = android.graphics.Rect()
+            root.getWindowVisibleDisplayFrame(frame)
+            val visible = root.rootView.height - frame.bottom > dp(180)
+            if (keyboardVisible != visible) {
+                keyboardVisible = visible
+                updateChrome()
+            }
+        }
     }
 
     private fun bindEvents() {
+        listOf(etTitle, etTags, etCategories, etDate).forEach { field ->
+            field.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) editingBody = false }
+            field.addTextChangedListener(watcher { if (!editorLoading) markDirty() })
+        }
+        findViewById<EditText>(R.id.search_drafts).addTextChangedListener(watcher { renderDrafts() })
+        findViewById<EditText>(R.id.search_posts).addTextChangedListener(watcher { renderPosts(posts) })
+        listOf(R.id.search_drafts, R.id.search_posts).forEach { id ->
+            findViewById<EditText>(id).setOnEditorActionListener { _, action, _ ->
+                if (action == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH) { hideKeyboard(); true } else false
+            }
+        }
+        etDate.keyListener = null
+        etDate.isFocusable = false
+        etDate.contentDescription = "选择文章发布日期与时间"
+        etDate.setOnClickListener { pickDate() }
+        findViewById<View>(R.id.btn_quick_new).setOnClickListener { newArticle() }
+        findViewById<View>(R.id.btn_edit_mode).setOnClickListener { setPreview(false) }
+        findViewById<View>(R.id.btn_metadata).setOnClickListener { showMetadata() }
+        findViewById<View>(R.id.btn_focus).setOnClickListener { setFocused(!focused) }
+        findViewById<View>(R.id.empty_drafts_action).setOnClickListener { newArticle() }
+        findViewById<View>(R.id.empty_published_action).setOnClickListener {
+            if (cfg.token.isBlank()) { showPanel("settings"); fillSettings() } else newArticle()
+        }
+        findViewById<Button>(R.id.btn_token_visibility).setOnClickListener { v ->
+            val field = findViewById<EditText>(R.id.et_token)
+            val showing = field.transformationMethod == null
+            field.transformationMethod = if (showing) PasswordTransformationMethod.getInstance() else null
+            (v as Button).text = if (showing) "显示" else "隐藏"
+            field.setSelection(field.text.length)
+        }
         navWrite.setOnClickListener { showPanel("write") }
         navDrafts.setOnClickListener { showPanel("drafts"); loadDrafts() }
         navPublished.setOnClickListener { showPanel("published"); loadPosts() }
         navSettings.setOnClickListener { showPanel("settings"); fillSettings() }
 
-        findViewById<Button>(R.id.btn_publish).setOnClickListener { publish() }
-        findViewById<Button>(R.id.btn_new).setOnClickListener { resetEditor(); showPanel("write") }
-        findViewById<Button>(R.id.btn_refresh).setOnClickListener { loadPosts() }
+        findViewById<Button>(R.id.btn_publish).setOnClickListener { confirmPublish() }
+        findViewById<Button>(R.id.btn_new).setOnClickListener { newArticle() }
+        findViewById<View>(R.id.btn_refresh).setOnClickListener { loadPosts() }
         btnPreview.setOnClickListener { togglePreview() }
         findViewById<Button>(R.id.btn_save).setOnClickListener { saveDraft() }
         findViewById<Button>(R.id.btn_test).setOnClickListener { testConnection() }
@@ -179,31 +255,29 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.btn_redo).setOnClickListener { execJs("redo") }
 
         lvDrafts.setOnItemClickListener { _, _, pos, _ ->
-            val d = drafts[pos]
-            currentDraftId = d.id
-            currentPath = null
-            currentSha = null
-            currentAuthor = cfg.author
-            etTitle.setText(d.title)
-            etTags.setText(d.tags)
-            etCategories.setText(d.categories)
-            etDate.setText(d.date)
-            loadEditor(Markdown.render(d.body))
-            showPanel("write")
+            visibleDrafts.getOrNull(pos)?.let { d ->
+                if (dirty) saveDraft(false)
+                openDraft(d)
+                showPanel("write")
+            }
         }
         lvDrafts.setOnItemLongClickListener { _, _, pos, _ ->
-            val d = drafts[pos]
-            AlertDialog.Builder(this)
-                .setTitle("删除草稿")
-                .setMessage("确定删除「${d.title}」吗？")
-                .setPositiveButton("删除") { _, _ -> DraftStore.delete(this, d.id); loadDrafts() }
-                .setNegativeButton("取消", null)
-                .show()
+            visibleDrafts.getOrNull(pos)?.let { d ->
+                AlertDialog.Builder(this)
+                    .setTitle("删除草稿？")
+                    .setMessage("「${d.title}」将从这台设备中删除。")
+                    .setPositiveButton("删除") { _, _ ->
+                        DraftStore.delete(this, d.id)
+                        if (currentDraftId == d.id) resetEditor()
+                        loadDrafts()
+                    }
+                    .setNegativeButton("保留", null).show()
+            }
             true
         }
-        lvPosts.setOnItemClickListener { _, _, pos, _ -> previewPost(posts[pos]) }
+        lvPosts.setOnItemClickListener { _, _, pos, _ -> visiblePosts.getOrNull(pos)?.let { previewPost(it) } }
         lvPosts.setOnItemLongClickListener { _, _, pos, _ ->
-            val f = posts[pos]
+            val f = visiblePosts.getOrNull(pos) ?: return@setOnItemLongClickListener true
             AlertDialog.Builder(this)
                 .setTitle("删除文章")
                 .setMessage("确定删除「${if (f.title.isNotBlank()) f.title else f.name}」吗？会从博客里移除。")
@@ -215,6 +289,21 @@ class MainActivity : Activity() {
     }
 
     private fun showPanel(name: String) {
+        if (publishing && name != activePanel) { toast("文章正在发布，请稍候"); return }
+        if (name != "write" && dirty) saveDraft(false)
+        if (focused && name != "write") setFocused(false)
+        if (name != "write") hideKeyboard()
+        activePanel = name
+        findViewById<TextView>(R.id.page_title).text = when (name) {
+            "drafts" -> "草稿"
+            "published" -> "文章"
+            "settings" -> "设置"
+            else -> "写作"
+        }
+        mapOf(R.id.btn_quick_new to "write", R.id.btn_publish to "write", R.id.btn_new to "drafts", R.id.btn_refresh to "published", R.id.btn_save_settings to "settings").forEach { (id, panel) ->
+            findViewById<View>(id).visibility = if (name == panel) View.VISIBLE else View.GONE
+        }
+        updateChrome()
         // 切回「写文章」时如果还停在只读预览，先回到编辑器，避免看到的是预览而非编辑框
         if (name == "write" && previewOn) setPreview(false)
         panelWrite.visibility = if (name == "write") View.VISIBLE else View.GONE
@@ -225,12 +314,17 @@ class MainActivity : Activity() {
         setNav(navDrafts, name == "drafts")
         setNav(navPublished, name == "published")
         setNav(navSettings, name == "settings")
+        listOf(panelWrite, panelDrafts, panelPublished, panelSettings).firstOrNull { it.visibility == View.VISIBLE }?.let {
+            it.alpha = 0f
+            it.animate().alpha(1f).setDuration(180).start()
+        }
     }
 
     private fun setNav(v: TextView, active: Boolean) {
         v.setTextColor(getColor(if (active) R.color.nav_active_text else R.color.nav_text))
-        v.setTypeface(Typeface.DEFAULT, if (active) Typeface.BOLD else Typeface.NORMAL)
-        v.setBackgroundResource(if (active) R.drawable.bg_nav_active else 0)
+        v.typeface = if (active) Typeface.create("sans-serif-medium", Typeface.NORMAL) else Typeface.DEFAULT
+        v.compoundDrawableTintList = ColorStateList.valueOf(getColor(if (active) R.color.primary else R.color.nav_text))
+        v.isSelected = active
     }
 
     private fun toast(msg: String) = Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
@@ -243,11 +337,15 @@ class MainActivity : Activity() {
 
     private fun baseUrl(): String = "https://${cfg.owner.lowercase()}.github.io/"
 
-    private fun loadEditor(bodyHtml: String) {
+    private fun loadEditor(bodyHtml: String, markdown: String = "") {
+        editorLoading = true
+        latestMarkdown = markdown
+        dirty = false
+        handler.removeCallbacks(autosave)
+        findViewById<TextView>(R.id.tv_save_status).text = if (currentDraftId == null) "本地草稿" else "已保存到本机"
         val page = readAsset("editor.html").replace("{{CONTENT}}", bodyHtml)
         richEditor.loadDataWithBaseURL(baseUrl(), page, "text/html", "UTF-8", null)
-        // 页面加载完成后再请求焦点，确保 WebView 原生焦点与 contenteditable 同步
-        richEditor.post { richEditor.requestFocus() }
+
     }
 
     private fun jsResult(v: String?): String =
@@ -272,6 +370,10 @@ class MainActivity : Activity() {
     }
 
     private fun resetEditor() {
+        editorLoading = true
+        currentPath = null
+        currentSha = null
+        currentDraftId = null
         etTitle.setText("")
         etTags.setText("")
         etCategories.setText("")
@@ -281,40 +383,31 @@ class MainActivity : Activity() {
         currentSha = null
         currentDraftId = null
         currentAuthor = cfg.author
-        if (previewOn) togglePreview()
+        if (previewOn) setPreview(false)
+        findViewById<View>(R.id.metadata_fields).visibility = View.GONE
+        findViewById<Button>(R.id.btn_metadata).text = "＋ 添加标签、分类与日期"
+        getSharedPreferences("writing_session", MODE_PRIVATE).edit().remove("draft").apply()
     }
 
     private fun togglePreview() {
-        setPreview(!previewOn)
+        setPreview(true)
     }
 
     private fun setPreview(on: Boolean) {
         previewOn = on
         paperCard.visibility = if (on) View.GONE else View.VISIBLE
         webPreview.visibility = if (on) View.VISIBLE else View.GONE
-        btnPreview.text = if (on) "编辑" else "预览"
+        hideKeyboard()
+        val editMode = findViewById<Button>(R.id.btn_edit_mode)
+        editMode.setBackgroundResource(if (on) android.R.color.transparent else R.drawable.bg_btn_secondary)
+        btnPreview.setBackgroundResource(if (on) R.drawable.bg_btn_secondary else android.R.color.transparent)
+        btnPreview.setTextColor(getColor(if (on) R.color.primary else R.color.text_secondary))
+        editMode.setTextColor(getColor(if (on) R.color.text_secondary else R.color.primary))
         if (on) renderPreview()
     }
 
     private fun renderPreview() {
-        getMarkdown { md ->
-            val body = Markdown.render(md)
-            val html = """
-                <!doctype html><html><head><meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <style>
-                  body{font-family:sans-serif;padding:16px;color:#50564b;background:#fffefa;line-height:1.9;word-wrap:break-word;}
-                  h1,h2,h3,h4{color:#292d28;line-height:1.4;}
-                  h2{border-bottom:1px solid #e4e5dc;padding-bottom:.3em;}
-                  code{background:#f0f2ea;padding:2px 5px;border-radius:4px;color:#47523e;}
-                  pre{background:#354b39;color:#f4f3ef;padding:12px;border-radius:8px;overflow-x:auto;}
-                  pre code{background:none;color:inherit;padding:0;}
-                  blockquote{border-left:4px solid #789479;margin:.6em 0;padding:2px 12px;color:#697563;background:#f0f2ea;}
-                  img{max-width:100%;border-radius:10px;} a{color:#789479;}
-                </style></head><body>$body</body></html>
-            """.trimIndent()
-            webPreview.loadDataWithBaseURL(baseUrl(), html, "text/html", "UTF-8", null)
-        }
+        getMarkdown { md -> webPreview.loadDataWithBaseURL(baseUrl(), postPreviewHtml(readPostData(md)), "text/html", "UTF-8", null) }
     }
 
     private fun readPostData(body: String): PostData = PostData(
@@ -326,76 +419,238 @@ class MainActivity : Activity() {
         body = body,
     )
 
-    private fun saveDraft() {
-        getMarkdown { body ->
-            val p = readPostData(body)
-            val id = currentDraftId ?: ("d" + System.currentTimeMillis())
-            DraftStore.save(
-                this,
-                DraftStore.Draft(
-                    id = id,
-                    title = p.title.ifBlank { "未命名" },
-                    tags = etTags.text.toString(),
-                    categories = etCategories.text.toString(),
-                    date = p.date,
-                    body = body,
-                    updatedAt = System.currentTimeMillis(),
-                )
-            )
-            currentDraftId = id
-            toast("已保存草稿")
+    private fun watcher(changed: () -> Unit) = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { changed() }
+        override fun afterTextChanged(s: Editable?) {}
+    }
+
+    private fun markDirty() {
+        dirty = true
+        findViewById<TextView>(R.id.tv_save_status).text = "正在保存…"
+        handler.removeCallbacks(autosave)
+        handler.postDelayed(autosave, 1200)
+    }
+
+    private fun saveDraft(notify: Boolean = true) {
+        handler.removeCallbacks(autosave)
+        if (currentDraftId == null && latestMarkdown.isBlank() && etTitle.text.isBlank() && etTags.text.isBlank() && etCategories.text.isBlank()) {
+            dirty = false
+            findViewById<TextView>(R.id.tv_save_status).text = "本地草稿"
+            if (notify) toast("写下标题或正文，再保存你的灵感")
+            return
+        }
+        val id = currentDraftId ?: ("d" + System.currentTimeMillis())
+        DraftStore.save(this, DraftStore.Draft(
+            id = id, title = etTitle.text.toString().trim().ifBlank { "未命名文章" },
+            tags = etTags.text.toString(), categories = etCategories.text.toString(),
+            date = etDate.text.toString(), body = latestMarkdown, updatedAt = System.currentTimeMillis(),
+            path = currentPath, sha = currentSha, author = currentAuthor,
+        ))
+        currentDraftId = id
+        dirty = false
+        getSharedPreferences("writing_session", MODE_PRIVATE).edit().putString("draft", id).apply()
+        findViewById<TextView>(R.id.tv_save_status).text = "已保存到本机"
+        if (notify) toast("草稿已保存")
+    }
+
+    private fun openDraft(d: DraftStore.Draft) {
+        editorLoading = true
+        currentDraftId = d.id
+        getSharedPreferences("writing_session", MODE_PRIVATE).edit().putString("draft", d.id).apply()
+        currentPath = d.path
+        currentSha = d.sha
+        currentAuthor = d.author.ifBlank { cfg.author }
+        etTitle.setText(d.title)
+        etTags.setText(d.tags)
+        etCategories.setText(d.categories)
+        etDate.setText(d.date)
+        loadEditor(Markdown.render(d.body), d.body)
+        if (previewOn) setPreview(false)
+    }
+
+    private fun showMetadata() {
+        hideKeyboard()
+        val form = layoutInflater.inflate(R.layout.dialog_article_info, null)
+        val tags = form.findViewById<EditText>(R.id.meta_tags)
+        val categories = form.findViewById<EditText>(R.id.meta_categories)
+        val date = form.findViewById<EditText>(R.id.meta_date)
+        tags.setText(etTags.text)
+        categories.setText(etCategories.text)
+        date.setText(etDate.text)
+        date.keyListener = null
+        date.setOnClickListener { pickDate(date) }
+        val dialog = AlertDialog.Builder(this).setTitle("文章信息").setView(form)
+            .setPositiveButton("完成") { _, _ ->
+                etTags.setText(tags.text)
+                etCategories.setText(categories.text)
+                etDate.setText(date.text)
+                val summary = listOf(tags.text.toString(), categories.text.toString()).filter { it.isNotBlank() }.joinToString(" · ")
+                findViewById<Button>(R.id.btn_metadata).text = summary.ifBlank { "＋ 添加标签、分类与日期" }
+            }
+            .setNegativeButton("取消", null).create()
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        dialog.show()
+    }
+
+    private fun pickDate(target: EditText = etDate) {
+        val calendar = Calendar.getInstance()
+        try {
+            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).apply { isLenient = false }
+                .parse(target.text.toString())?.let { calendar.time = it }
+        } catch (_: Exception) { }
+        DatePickerDialog(this, { _, year, month, day ->
+            calendar.set(year, month, day)
+            TimePickerDialog(this, { _, hour, minute ->
+                calendar.set(Calendar.HOUR_OF_DAY, hour)
+                calendar.set(Calendar.MINUTE, minute)
+                calendar.set(Calendar.SECOND, 0)
+                target.setText(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(calendar.time))
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show()
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
+    }
+
+    private fun newArticle() {
+        if (publishing) { toast("正在发布，请稍候"); return }
+        if (dirty) saveDraft(false)
+        resetEditor()
+        showPanel("write")
+        toast("新的一页，开始记录吧")
+    }
+
+    private fun setFocused(on: Boolean) {
+        focused = on
+        updateChrome()
+        findViewById<View>(R.id.btn_focus).apply {
+            contentDescription = if (on) "退出专注模式" else "进入专注模式"
+            alpha = if (on) 0.5f else 1f
+        }
+    }
+
+    private fun updateChrome() {
+        val restoreBody = keyboardVisible && editingBody && activePanel == "write" && !previewOn
+        listOf(R.id.brand_header, R.id.bottom_navigation).forEach {
+            findViewById<View>(it).visibility = if (focused || keyboardVisible) View.GONE else View.VISIBLE
+        }
+        findViewById<View>(R.id.editor_intro).visibility = if (restoreBody) View.GONE else View.VISIBLE
+        // A WebView may drop its native input connection when its ancestors resize.
+        if (restoreBody) richEditor.post {
+            richEditor.requestFocus()
+            richEditor.evaluateJavascript("focusEditor()", null)
+        }
+    }
+
+    private fun hideKeyboard() {
+        editingBody = false
+        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+            .hideSoftInputFromWindow(etTitle.windowToken, 0)
+        currentFocus?.clearFocus()
+    }
+
+    override fun onPause() {
+        if (dirty) saveDraft(false)
+        super.onPause()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        when {
+            focused -> setFocused(false)
+            previewOn && activePanel == "write" -> setPreview(false)
+            activePanel != "write" -> showPanel("write")
+            else -> super.onBackPressed()
         }
     }
 
     private fun loadDrafts() {
         drafts = DraftStore.list(this)
-        lvDrafts.adapter = if (drafts.isEmpty()) {
-            CardAdapter(listOf("还没有草稿"), listOf(""), listOf(""), listOf("开始记录第一个念头吧。"))
-        } else {
-            CardAdapter(
-                drafts.map { it.title },
-                drafts.map { "" },
-                drafts.map { "" },
-                drafts.map { (if (it.date.isBlank()) "未保存日期" else it.date) + " · 点击继续编辑" },
-            )
-        }
+        renderDrafts()
+    }
+
+    private fun renderDrafts() {
+        val query = findViewById<EditText>(R.id.search_drafts).text.toString().trim()
+        visibleDrafts = drafts.filter { query.isBlank() || it.title.contains(query, true) || it.body.contains(query, true) }
+        findViewById<TextView>(R.id.tv_draft_total).text = "${drafts.size}  篇草稿"
+        lvDrafts.adapter = CardAdapter(
+            visibleDrafts.map { it.title },
+            visibleDrafts.map { SimpleDateFormat("MM月dd日 HH:mm", Locale.CHINA).format(Date(it.updatedAt)) },
+            visibleDrafts.map { "草稿" },
+            visibleDrafts.map { it.body.replace(Regex("[#*>`\\[\\]]"), "").replace("\n", " ").take(80).ifBlank { "还没有正文 · 点击继续写作" } },
+        )
+        findViewById<View>(R.id.empty_drafts).visibility = if (visibleDrafts.isEmpty()) View.VISIBLE else View.GONE
+        findViewById<TextView>(R.id.empty_drafts_title).text = if (query.isBlank()) "让想法有个落脚点" else "没有找到相关草稿"
+        findViewById<TextView>(R.id.empty_drafts_desc).text = if (query.isBlank()) "写下片刻灵感，草稿会保存在这台设备。" else "试试其他关键词，或开始新的故事。"
     }
 
     private fun loadPosts() {
-        // 先展示本地缓存，避免每次打开都干等仓库
-        val cached = PostCache.load(this, cfg)
-        if (cached != null) {
-            posts = cached
-            renderPosts(cached)
-        } else {
+        if (loadingPosts) return
+        if (cfg.token.isBlank()) {
             posts = emptyList()
-            lvPosts.adapter = CardAdapter(listOf("正在加载…"), listOf(""), listOf(""), listOf(""))
-            toast("加载中…")
+            renderPosts(posts)
+            findViewById<TextView>(R.id.empty_published_title).text = "连接你的发布空间"
+            findViewById<TextView>(R.id.empty_published_desc).text = "在工作台连接 GitHub，即可同步和发布文章。"
+            findViewById<Button>(R.id.empty_published_action).text = "连接 GitHub"
+            return
         }
-        // 后台拉取最新，成功后刷新并更新缓存（只重读 sha 变了的文章）
+        val cached = PostCache.load(this, cfg)
+        posts = cached ?: emptyList()
+        renderPosts(posts)
+        loadingPosts = true
+        val refresh = findViewById<ImageButton>(R.id.btn_refresh)
+        val status = findViewById<TextView>(R.id.tv_posts_status)
+        refresh.isEnabled = false
+        refresh.contentDescription = "正在同步文章"
+        refresh.alpha = 0.45f
+        status.visibility = View.VISIBLE
+        status.text = if (cached == null) "正在从仓库获取文章…" else "已显示本地内容，正在同步最新文章…"
+        val requestConfig = cfg.copy()
         io(
-            task = { Github.listPosts(cfg, cached ?: emptyList()) },
+            task = { Github.listPosts(requestConfig, cached ?: emptyList()) },
             done = { files ->
-                posts = files
-                PostCache.save(this, cfg, files)
-                renderPosts(files)
+                loadingPosts = false
+                refresh.isEnabled = true
+                refresh.contentDescription = "刷新文章"
+                refresh.alpha = 1f
+                if (cfg == requestConfig) {
+                    posts = files
+                    PostCache.save(this, requestConfig, files)
+                    renderPosts(files)
+                    status.visibility = View.GONE
+                }
             },
-            fail = { if (cached == null) toast(it) }
+            fail = {
+                loadingPosts = false
+                refresh.isEnabled = true
+                refresh.contentDescription = "重新同步文章"
+                refresh.alpha = 1f
+                status.text = if (cached == null) "同步失败，点击重试 · $it" else "同步失败，当前显示离线内容 · $it"
+                if (posts.isEmpty()) {
+                    findViewById<TextView>(R.id.empty_published_title).text = "暂时无法同步文章"
+                    findViewById<TextView>(R.id.empty_published_desc).text = "检查网络和仓库设置，然后点击右上角重试。"
+                }
+            }
         )
     }
 
     private fun renderPosts(files: List<Github.PostFile>) {
-        lvPosts.adapter = if (files.isEmpty()) {
-            CardAdapter(listOf("还没有文章"), listOf(""), listOf(""), listOf("开始写下第一个故事吧。"))
-        } else {
-            CardAdapter(
-                files.map { if (it.title.isNotBlank()) it.title else it.name.removeSuffix(".md").substringAfterLast('/') },
-                files.map { slashDate(it.date) },
-                files.map { it.categories.firstOrNull() ?: "" },
-                files.map { (it.categories.firstOrNull() ?: "文章") + "　·　点击阅读 ↗" },
-                files.map { it.images },
-                onImageClick = { pos -> if (pos in posts.indices) previewPost(posts[pos]) },
-            )
+        val query = findViewById<EditText>(R.id.search_posts).text.toString().trim()
+        visiblePosts = files.filter { query.isBlank() || (listOf(it.title, it.name) + it.categories + it.tags).any { value -> value.contains(query, true) } }
+        findViewById<TextView>(R.id.tv_post_total).text = "${files.size}  篇已发布"
+        lvPosts.adapter = CardAdapter(
+            visiblePosts.map { it.title.ifBlank { it.name.removeSuffix(".md").substringAfterLast('/') } },
+            visiblePosts.map { slashDate(it.date) },
+            visiblePosts.map { it.categories.firstOrNull() ?: "随笔" },
+            visiblePosts.map { it.tags.take(3).joinToString("  ·  ").ifBlank { "已发布 · 点击阅读全文" } },
+            visiblePosts.map { it.images },
+            onImageClick = { pos -> visiblePosts.getOrNull(pos)?.let { previewPost(it) } },
+        )
+        findViewById<View>(R.id.empty_published).visibility = if (visiblePosts.isEmpty()) View.VISIBLE else View.GONE
+        findViewById<TextView>(R.id.empty_published_title).text = if (query.isBlank()) "第一篇故事，从这里开始" else "没有找到相关文章"
+        findViewById<TextView>(R.id.empty_published_desc).text = if (query.isBlank()) "把日常与想法，分享给更大的世界。" else "试试其他标题、分类或标签。"
+        findViewById<Button>(R.id.empty_published_action).text = if (cfg.token.isBlank()) "连接 GitHub" else "开始写作"
+        if (query.isBlank() && cfg.token.isBlank()) {
+            findViewById<TextView>(R.id.empty_published_title).text = "连接你的发布空间"
+            findViewById<TextView>(R.id.empty_published_desc).text = "在工作台连接 GitHub，即可同步和发布文章。"
         }
     }
 
@@ -435,16 +690,16 @@ class MainActivity : Activity() {
             <!doctype html><html><head><meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
-              body{font-family:sans-serif;padding:24px 22px 48px;color:#50564b;background:#fffefa;line-height:1.9;word-wrap:break-word;}
-              h1{font-size:24px;color:#292d28;line-height:1.4;margin:0 0 10px;}
-              .meta{font-size:12px;color:#92968a;letter-spacing:.5px;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid #eff0e8;}
-              h2,h3,h4{color:#292d28;line-height:1.4;}
-              h2{border-bottom:1px solid #e4e5dc;padding-bottom:.3em;}
-              code{background:#f0f2ea;padding:2px 5px;border-radius:4px;color:#47523e;}
-              pre{background:#354b39;color:#f4f3ef;padding:12px;border-radius:8px;overflow-x:auto;}
+              body{font-family:sans-serif;padding:28px 24px 64px;color:#45534d;background:#ffffff;line-height:1.9;word-wrap:break-word;}
+              h1{font-size:28px;color:#202d29;line-height:1.4;margin:0 0 10px;}
+              .meta{font-size:12px;color:#718072;letter-spacing:.5px;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid #edf0ea;}
+              h2,h3,h4{color:#202d29;line-height:1.4;}
+              h2{border-bottom:1px solid #e1e8e1;padding-bottom:.3em;}
+              code{background:#eff3ed;padding:2px 5px;border-radius:4px;color:#344d40;}
+              pre{background:#183f34;color:#f6f7f3;padding:12px;border-radius:8px;overflow-x:auto;}
               pre code{background:none;color:inherit;padding:0;}
-              blockquote{border-left:4px solid #789479;margin:.6em 0;padding:2px 12px;color:#697563;background:#f0f2ea;}
-              img{max-width:100%;border-radius:10px;} a{color:#789479;}
+              blockquote{border-left:4px solid #235c4b;margin:.6em 0;padding:2px 12px;color:#607164;background:#eff3ed;}
+              img{max-width:100%;border-radius:10px;} a{color:#235c4b;}
             </style></head><body>
             <h1>${esc(p.title.ifBlank { "未命名" })}</h1>
             ${if (meta.isNotBlank()) "<div class=\"meta\">${esc(meta)}</div>" else ""}
@@ -465,41 +720,103 @@ class MainActivity : Activity() {
         )
     }
 
+    private fun confirmPublish() {
+        if (publishing) return
+        if (cfg.token.isBlank()) {
+            if (dirty) saveDraft(false)
+            showPanel("settings")
+            fillSettings()
+            toast("连接 GitHub 后即可发布，草稿已为你保留")
+            return
+        }
+        if (etTitle.text.isBlank()) { etTitle.error = "给文章起一个标题吧"; etTitle.requestFocus(); return }
+        if (latestMarkdown.isBlank()) { toast("正文还是空白，先写点内容吧"); return }
+        if (dirty) saveDraft(false)
+        AlertDialog.Builder(this)
+            .setTitle(if (currentPath == null) "发布这篇文章？" else "更新这篇文章？")
+            .setMessage("「${etTitle.text}」\n\n将发布到 ${cfg.owner}/${cfg.repo} · ${cfg.branch}。")
+            .setPositiveButton(if (currentPath == null) "确认发布" else "确认更新") { _, _ -> publish() }
+            .setNegativeButton("再看看", null).show()
+    }
+
     private fun publish() {
+        if (publishing) return
         getMarkdown { body ->
             val p = readPostData(body)
             if (p.title.isBlank()) { toast("请填写标题"); return@getMarkdown }
             val content = Post.build(p)
 
-            var path = currentPath
-            var sha = currentSha
-            if (path == null) {
-                val base = Post.sanitize(p.title).ifBlank { "untitled" }
-                val datePrefix = Regex("""^\d{4}-\d{2}-\d{2}""").find(p.date)?.value
-                val fileBase = if (datePrefix != null) "$datePrefix-$base" else base
-                path = "${cfg.postsDir}/$fileBase.md"
-                val exists = try { Github.getFile(cfg, path); true } catch (_: Exception) { false }
-                if (exists) path = "${cfg.postsDir}/$fileBase-${System.currentTimeMillis()}.md"
-            }
-            val finalPath = path
-
-            toast("发布中…")
+            val existingPath = currentPath
+            val existingSha = currentSha
+            val draftId = currentDraftId
+            val requestConfig = cfg.copy()
+            publishing = true
+            setDocumentEnabled(false)
+            val publishButton = findViewById<Button>(R.id.btn_publish)
+            publishButton.isEnabled = false
+            publishButton.text = "发布中…"
             io(
-                task = { Github.putFile(cfg, finalPath, content, sha, "publish: ${p.title}") },
-                done = {
-                    currentDraftId?.let { DraftStore.delete(this, it) }
-                    toast("发布成功，约 1 分钟后博客自动更新")
-                    resetEditor()
-                    loadPosts()
+                task = {
+                    var path = existingPath
+                    if (path == null) {
+                        val base = Post.sanitize(p.title).ifBlank { "untitled" }
+                        val prefix = Regex("""^\d{4}-\d{2}-\d{2}""").find(p.date)?.value
+                        val fileBase = if (prefix != null) "$prefix-$base" else base
+                        path = "${requestConfig.postsDir}/$fileBase.md"
+                        // Only a real 404 means the filename is available.
+                        try {
+                            Github.getFile(requestConfig, path)
+                            path = "${requestConfig.postsDir}/$fileBase-${System.currentTimeMillis()}.md"
+                        } catch (e: Exception) {
+                            if (e.message?.startsWith("GitHub API 404:") != true) throw e
+                        }
+                    }
+                    Github.putFile(requestConfig, path, content, existingSha, "publish: ${p.title}")
                 },
-                fail = { toast(it) }
+                done = {
+                    publishing = false
+                    setDocumentEnabled(true)
+                    publishButton.isEnabled = true
+                    publishButton.text = "发布"
+                    draftId?.let { DraftStore.delete(this, it) }
+                    // Keep edits made while the request was in flight as a new local draft.
+                    if (readPostData(latestMarkdown) == p) resetEditor()
+                    else {
+                        currentDraftId = null
+                        currentPath = null
+                        currentSha = null
+                        saveDraft(false)
+                    }
+                    AlertDialog.Builder(this)
+                        .setTitle("文章已发布")
+                        .setMessage("文字已送达仓库，博客通常会在约 1 分钟后更新。")
+                        .setPositiveButton("查看文章库") { _, _ -> showPanel("published"); loadPosts() }
+                        .setNegativeButton("继续写作", null).show()
+                },
+                fail = {
+                    publishing = false
+                    setDocumentEnabled(true)
+                    publishButton.isEnabled = true
+                    publishButton.text = "重新发布"
+                    AlertDialog.Builder(this).setTitle("发布未完成")
+                        .setMessage("草稿仍保留在本机。\n\n$it")
+                        .setPositiveButton("知道了", null).show()
+                }
             )
         }
+    }
+
+    private fun setDocumentEnabled(enabled: Boolean) {
+        listOf(etTitle, etTags, etCategories, etDate).forEach { it.isEnabled = enabled }
+        richEditor.evaluateJavascript("el().contentEditable = '$enabled'", null)
+        val toolbar = findViewById<HorizontalScrollView>(R.id.format_toolbar).getChildAt(0) as ViewGroup
+        for (i in 0 until toolbar.childCount) toolbar.getChildAt(i).isEnabled = enabled
     }
 
     // ---- 图片 ----
 
     private fun pickImage() {
+        if (cfg.token.isBlank()) { toast("请先在工作台连接 GitHub，再上传图片"); return }
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "image/*"
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -525,12 +842,14 @@ class MainActivity : Activity() {
     // 预览页点「编辑」→ 把已拉取的内容填入编辑器并切入写文章
     private fun editPreviewedPost() {
         val p = pendingEditPost ?: return
+        if (dirty) saveDraft(false)
+        editorLoading = true
         val path = pendingEditPath ?: return
         etTitle.setText(p.title)
         etTags.setText(p.tags.joinToString(", "))
         etCategories.setText(p.categories.joinToString(", "))
         etDate.setText(p.date)
-        loadEditor(Markdown.render(p.body))
+        loadEditor(Markdown.render(p.body), p.body)
         currentPath = path
         currentSha = pendingEditSha
         currentDraftId = null
@@ -605,6 +924,7 @@ class MainActivity : Activity() {
     // ---- 设置 ----
 
     private fun fillSettings() {
+        findViewById<TextView>(R.id.tv_repo_status).visibility = View.GONE
         findViewById<EditText>(R.id.et_token).setText(cfg.token)
         findViewById<EditText>(R.id.et_owner).setText(cfg.owner)
         findViewById<EditText>(R.id.et_repo).setText(cfg.repo)
@@ -632,22 +952,43 @@ class MainActivity : Activity() {
     private fun testConnection() {
         readSettingsForm()
         Prefs.save(this, cfg)
-        toast("测试中…")
+        val test = findViewById<Button>(R.id.btn_test)
+        test.isEnabled = false
+        test.text = "正在连接…"
+        findViewById<TextView>(R.id.tv_repo_status).visibility = View.VISIBLE
+        findViewById<TextView>(R.id.tv_repo_status).text = "正在验证仓库访问权限…"
+        val requestConfig = cfg.copy()
         io(
-            task = { Github.testConnection(cfg) },
-            done = { toast("连接成功：$it") },
-            fail = { toast(it) }
+            task = { Github.testConnection(requestConfig) },
+            done = {
+                test.isEnabled = true
+                test.text = "重新测试"
+                findViewById<TextView>(R.id.tv_repo_status).text = "连接成功 · $it"
+                toast("连接成功")
+            },
+            fail = {
+                test.isEnabled = true
+                test.text = "重试连接"
+                findViewById<TextView>(R.id.tv_repo_status).text = "连接失败 · $it"
+            }
         )
+    }
+
+    override fun onDestroy() {
+        handler.removeCallbacksAndMessages(null)
+        imagePool.shutdownNow()
+        richEditor.removeJavascriptInterface("ZhiJian")
+        super.onDestroy()
     }
 
     private fun <T> io(task: () -> T, done: (T) -> Unit, fail: (String) -> Unit) {
         Thread {
             try {
                 val r = task()
-                runOnUiThread { done(r) }
+                runOnUiThread { if (!isDestroyed) done(r) }
             } catch (e: Exception) {
                 val msg = e.message ?: "出错了"
-                runOnUiThread { fail(msg) }
+                runOnUiThread { if (!isDestroyed) fail(msg) }
             }
         }.start()
     }
@@ -677,6 +1018,7 @@ class MainActivity : Activity() {
             badgeTv.visibility = if (b.isNotBlank()) View.VISIBLE else View.GONE
             badgeTv.text = b
 
+            v.contentDescription = "${titles[position]}，${descs[position]}。长按管理"
             v.findViewById<TextView>(R.id.tv_title).text = titles[position]
             v.findViewById<TextView>(R.id.tv_desc).text = descs[position]
 

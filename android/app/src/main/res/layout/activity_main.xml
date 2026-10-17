@@ -1,855 +1,685 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/app_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg"
-    android:orientation="vertical">
-
-    <!-- 品牌 -->
+    android:orientation="vertical"
+    android:focusableInTouchMode="true">
     <LinearLayout
+        android:id="@+id/brand_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="64dp"
+        android:paddingStart="22dp"
+        android:paddingEnd="14dp"
+        android:baselineAligned="false"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingLeft="22dp"
-        android:paddingTop="22dp"
-        android:paddingRight="22dp">
-
+        android:orientation="horizontal">
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/page_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="serif"
-            android:letterSpacing="0.15"
-            android:text="纸间"
+            android:layout_weight="1"
+            android:text="写作"
+            android:textSize="23sp"
             android:textColor="@color/text_main"
-            android:textSize="23sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="serif"
-            android:text=" ·"
-            android:textColor="@color/brand_dot"
-            android:textSize="23sp" />
+            android:fontFamily="sans-serif-medium" />
+        <ImageButton
+            android:id="@+id/btn_quick_new"
+            style="@style/UiToolbarIcon"
+            android:src="@drawable/ic_action_add"
+            android:contentDescription="新建文章"
+            android:tooltipText="新建文章"
+            android:layout_marginEnd="6dp" />
+        <Button
+            android:id="@+id/btn_publish"
+            style="@style/UiToolbarAction"
+            android:drawableStart="@drawable/ic_action_send"
+            android:text="发布" />
+        <Button
+            android:id="@+id/btn_new"
+            style="@style/UiToolbarAction"
+            android:drawableStart="@drawable/ic_action_add"
+            android:text="新建"
+            android:visibility="gone" />
+        <ImageButton
+            android:id="@+id/btn_refresh"
+            style="@style/UiToolbarIcon"
+            android:src="@drawable/ic_action_refresh"
+            android:contentDescription="刷新文章"
+            android:tooltipText="刷新文章"
+            android:visibility="gone" />
+        <Button
+            android:id="@+id/btn_save_settings"
+            style="@style/UiToolbarAction"
+            android:drawableStart="@drawable/ic_action_check"
+            android:text="保存"
+            android:visibility="gone" />
     </LinearLayout>
-
-    <!-- 内容区 -->
     <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingLeft="20dp"
-        android:paddingTop="20dp"
-        android:paddingRight="20dp"
-        android:paddingBottom="20dp">
-
-        <!-- 写文章 -->
+        android:paddingHorizontal="22dp"
+        android:paddingTop="8dp">
         <LinearLayout
             android:id="@+id/panel_write"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="记录此刻"
-                        android:textColor="@color/text_main"
-                        android:textSize="25sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="慢慢写，让日常成为值得收藏的故事。"
-                        android:textColor="@color/text_light"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btn_publish"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/bg_btn_primary"
-                    android:minWidth="0dp"
-                    android:paddingLeft="15dp"
-                    android:paddingTop="11dp"
-                    android:paddingRight="15dp"
-                    android:paddingBottom="11dp"
-                    android:text="发布 ↗"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp" />
-            </RelativeLayout>
-
-            <!-- 纸张卡片 -->
             <LinearLayout
-                android:id="@+id/paper_card"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+                <Button
+                    android:id="@+id/btn_edit_mode"
+                    style="@style/UiSecondary"
+                    android:text="编辑"
+                    android:layout_height="44dp" />
+                <Button
+                    android:id="@+id/btn_preview"
+                    style="@style/UiButton"
+                    android:text="预览"
+                    android:layout_height="44dp"
+                    android:textColor="@color/text_secondary" />
+                <TextView
+                    android:id="@+id/tv_save_status"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="本地草稿"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:paddingEnd="8dp" />
+                <ImageButton
+                    android:id="@+id/btn_focus"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_focus"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="进入专注模式" />
+            </LinearLayout>
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="20dp"
                 android:layout_weight="1"
                 android:background="@drawable/bg_paper"
-                android:orientation="vertical">
-
-                <!-- meta -->
+                android:clipToOutline="true">
                 <LinearLayout
+                    android:id="@+id/paper_card"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingLeft="22dp"
-                    android:paddingTop="22dp"
-                    android:paddingRight="22dp"
-                    android:paddingBottom="22dp">
-
-                    <EditText
-                        android:id="@+id/et_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:hint="给故事起个名字"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:textColor="@color/text_main"
-                        android:textColorHint="@color/text_light"
-                        android:textSize="24sp" />
-
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:orientation="horizontal">
-
+                        android:orientation="vertical"
+                        android:paddingHorizontal="20dp"
+                        android:paddingTop="12dp"
+                        android:id="@+id/editor_intro">
                         <EditText
-                            android:id="@+id/et_tags"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/bg_chip"
-                            android:hint="标签"
-                            android:inputType="text"
-                            android:maxLines="1"
-                            android:paddingLeft="10dp"
-                            android:paddingTop="7dp"
-                            android:paddingRight="10dp"
-                            android:paddingBottom="7dp"
-                            android:textColor="@color/chip_text"
-                            android:textColorHint="@color/text_light"
+                            android:id="@+id/et_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:background="@null"
+                            android:hint="为你的故事命名"
+                            android:textColor="@color/text_main"
+                            android:textColorHint="#9CA69D"
+                            android:textSize="25sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:inputType="textCapSentences"
+                            android:singleLine="true"
+                            android:importantForAutofill="no" />
+                        <Button
+                            android:id="@+id/btn_metadata"
+                            style="@style/UiButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:gravity="start|center_vertical"
+                            android:paddingLeft="0dp"
+                            android:paddingRight="0dp"
+                            android:text="＋ 添加标签、分类与日期"
+                            android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
-
-                        <EditText
-                            android:id="@+id/et_categories"
-                            android:layout_width="0dp"
+                        <LinearLayout
+                            android:id="@+id/metadata_fields"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:layout_weight="1"
-                            android:background="@drawable/bg_chip"
-                            android:hint="分类"
-                            android:inputType="text"
-                            android:maxLines="1"
-                            android:paddingLeft="10dp"
-                            android:paddingTop="7dp"
-                            android:paddingRight="10dp"
-                            android:paddingBottom="7dp"
-                            android:textColor="@color/chip_text"
-                            android:textColorHint="@color/text_light"
-                            android:textSize="12sp" />
+                            android:orientation="vertical"
+                            android:visibility="gone">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                                <EditText
+                                    android:id="@+id/et_tags"
+                                    style="@style/UiField"
+                                    android:hint="标签，用逗号分隔"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginEnd="8dp" />
+                                <EditText
+                                    android:id="@+id/et_categories"
+                                    style="@style/UiField"
+                                    android:hint="分类"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1" />
+                            </LinearLayout>
+                            <EditText
+                                android:id="@+id/et_date"
+                                style="@style/UiField"
+                                android:hint="发布时间 · YYYY-MM-DD HH:mm:ss" />
+                        </LinearLayout>
                     </LinearLayout>
-
-                    <EditText
-                        android:id="@+id/et_date"
+                    <View
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/bg_chip"
-                        android:hint="日期"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:paddingLeft="10dp"
-                        android:paddingTop="7dp"
-                        android:paddingRight="10dp"
-                        android:paddingBottom="7dp"
-                        android:textColor="@color/chip_text"
-                        android:textColorHint="@color/text_light"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/border_light" />
-
-                <!-- 工具栏 -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/toolbar_bg"
-                    android:scrollbars="none">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingLeft="16dp"
-                        android:paddingTop="10dp"
-                        android:paddingRight="16dp"
-                        android:paddingBottom="10dp">
-
-                        <Button
-                            android:id="@+id/btn_bold"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="B"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <Button
-                            android:id="@+id/btn_italic"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="I"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp"
-                            android:textStyle="italic" />
-
-                        <Button
-                            android:id="@+id/btn_strike"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="S"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btn_h2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="H₂"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btn_ul"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="40dp"
-                            android:minHeight="30dp"
-                            android:text="• ≡"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btn_ol"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="40dp"
-                            android:minHeight="30dp"
-                            android:text="1. ≡"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btn_quote"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="❝"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btn_code"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="&lt;/>"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="14sp" />
-
-                        <Button
-                            android:id="@+id/btn_link"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="↗"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btn_image"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="🖼"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btn_undo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="↩"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-
-                        <Button
-                            android:id="@+id/btn_redo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?android:attr/selectableItemBackground"
-                            android:minWidth="32dp"
-                            android:minHeight="30dp"
-                            android:text="↪"
-                            android:textColor="@color/toolbar_icon"
-                            android:textSize="15sp" />
-                    </LinearLayout>
-                </HorizontalScrollView>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/border_light" />
-
-                <!-- 正文编辑 -->
-                <WebView
-                    android:id="@+id/rich_editor"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="@color/card" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/border_light" />
-
-                <!-- 底部 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingLeft="18dp"
-                    android:paddingTop="14dp"
-                    android:paddingRight="18dp"
-                    android:paddingBottom="14dp">
-
-                    <TextView
-                        android:id="@+id/tv_count"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="1dp"
+                        android:background="@color/border_light" />
+                    <WebView
+                        android:id="@+id/rich_editor"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:text="0 字 · 自由记录"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
-
-                    <Button
-                        android:id="@+id/btn_preview"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_btn_secondary"
-                        android:minWidth="0dp"
-                        android:paddingLeft="15dp"
-                        android:paddingTop="11dp"
-                        android:paddingRight="15dp"
-                        android:paddingBottom="11dp"
-                        android:text="预览"
-                        android:textColor="@color/btn_secondary_text"
-                        android:textSize="14sp" />
-
-                    <Button
-                        android:id="@+id/btn_save"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:background="@drawable/bg_btn_secondary"
-                        android:minWidth="0dp"
-                        android:paddingLeft="15dp"
-                        android:paddingTop="11dp"
-                        android:paddingRight="15dp"
-                        android:paddingBottom="11dp"
-                        android:text="存草稿"
-                        android:textColor="@color/btn_secondary_text"
-                        android:textSize="14sp" />
+                        android:background="@color/card" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/border_light" />
+                    <HorizontalScrollView
+                        android:id="@+id/format_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@color/toolbar_bg"
+                        android:scrollbars="none">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:paddingHorizontal="6dp"
+                            android:baselineAligned="false">
+                            <Button
+                                android:id="@+id/btn_bold"
+                                style="@style/UiTool"
+                                android:text="B"
+                                android:contentDescription="加粗" />
+                            <Button
+                                android:id="@+id/btn_italic"
+                                style="@style/UiTool"
+                                android:text="I"
+                                android:contentDescription="斜体"
+                                android:textStyle="italic" />
+                            <Button
+                                android:id="@+id/btn_h2"
+                                style="@style/UiTool"
+                                android:text="H₂"
+                                android:contentDescription="二级标题" />
+                            <Button
+                                android:id="@+id/btn_ul"
+                                style="@style/UiTool"
+                                android:text="≡"
+                                android:contentDescription="无序列表" />
+                            <Button
+                                android:id="@+id/btn_quote"
+                                style="@style/UiTool"
+                                android:text="“"
+                                android:contentDescription="引用" />
+                            <Button
+                                android:id="@+id/btn_image"
+                                style="@style/UiTool"
+                                android:text=""
+                                android:drawableTop="@drawable/ic_image"
+                                android:paddingTop="13dp"
+                                android:contentDescription="插入图片" />
+                            <Button
+                                android:id="@+id/btn_link"
+                                style="@style/UiTool"
+                                android:text="↗"
+                                android:contentDescription="插入链接" />
+                            <Button
+                                android:id="@+id/btn_code"
+                                style="@style/UiTool"
+                                android:text="&lt;/&gt;"
+                                android:contentDescription="代码块" />
+                            <Button
+                                android:id="@+id/btn_ol"
+                                style="@style/UiTool"
+                                android:text="1."
+                                android:contentDescription="有序列表" />
+                            <Button
+                                android:id="@+id/btn_strike"
+                                style="@style/UiTool"
+                                android:text="S̶"
+                                android:contentDescription="删除线" />
+                            <Button
+                                android:id="@+id/btn_undo"
+                                style="@style/UiTool"
+                                android:text="↶"
+                                android:contentDescription="撤销" />
+                            <Button
+                                android:id="@+id/btn_redo"
+                                style="@style/UiTool"
+                                android:text="↷"
+                                android:contentDescription="重做" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
                 </LinearLayout>
-            </LinearLayout>
-
-            <WebView
-                android:id="@+id/web_preview"
+                <WebView
+                    android:id="@+id/web_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"
+                    android:background="@color/card" />
+            </FrameLayout>
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="20dp"
-                android:layout_weight="1"
-                android:visibility="gone" />
+                android:layout_height="60dp"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/tv_count"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0 字 · 预计阅读 1 分钟"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary" />
+                <Button
+                    android:id="@+id/btn_save"
+                    style="@style/UiButton"
+                    android:text="保存草稿"
+                    android:textColor="@color/primary"
+                    android:paddingRight="2dp" />
+            </LinearLayout>
         </LinearLayout>
-
-        <!-- 草稿 -->
         <LinearLayout
             android:id="@+id/panel_drafts"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:visibility="gone">
-
-            <RelativeLayout
+            <EditText
+                android:id="@+id/search_drafts"
+                style="@style/UiField"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="6dp"
+                android:hint="搜索草稿标题或正文"
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="10dp"
+                android:inputType="text"
+                android:imeOptions="actionSearch" />
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
+                android:layout_height="36dp"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/tv_draft_total"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="0  篇草稿"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_weight="1" />
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="未完的故事"
-                        android:textColor="@color/text_main"
-                        android:textSize="25sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="留一点时间，给还没写完的念头。"
-                        android:textColor="@color/text_light"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btn_new"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/bg_btn_primary"
-                    android:minWidth="0dp"
-                    android:paddingLeft="15dp"
-                    android:paddingTop="11dp"
-                    android:paddingRight="15dp"
-                    android:paddingBottom="11dp"
-                    android:text="新建 +"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp" />
-            </RelativeLayout>
-
-            <ListView
-                android:id="@+id/lv_drafts"
+                    android:text="最近编辑 ↓"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_drafts_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:visibility="gone"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="20dp"
-                android:layout_weight="1"
-                android:divider="@null"
-                android:dividerHeight="0dp" />
+                android:layout_weight="1">
+                <ListView
+                    android:id="@+id/lv_drafts"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:divider="@android:color/transparent"
+                    android:dividerHeight="12dp"
+                    android:scrollbars="none"
+                    android:clipToPadding="false"
+                    android:paddingBottom="16dp" />
+                <LinearLayout
+                    android:id="@+id/empty_drafts"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="20dp"
+                    android:visibility="gone">
+                    <ImageView
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:src="@drawable/ic_drafts"
+                        android:alpha="0.5"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:id="@+id/empty_drafts_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:text="让想法有个落脚点"
+                        android:textColor="@color/text_main"
+                        android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/empty_drafts_desc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="写下片刻灵感，草稿会保存在这台设备。"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                    <Button
+                        android:id="@+id/empty_drafts_action"
+                        style="@style/UiSecondary"
+                        android:text="开始写作"
+                        android:layout_marginTop="20dp" />
+                </LinearLayout>
+            </FrameLayout>
         </LinearLayout>
-
-        <!-- 已发布 -->
         <LinearLayout
             android:id="@+id/panel_published"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:visibility="gone">
-
-            <RelativeLayout
+            <EditText
+                android:id="@+id/search_posts"
+                style="@style/UiField"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="6dp"
+                android:hint="搜索标题、分类或标签"
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="10dp"
+                android:inputType="text"
+                android:imeOptions="actionSearch" />
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
+                android:layout_height="36dp"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/tv_post_total"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="0  篇已发布"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_weight="1" />
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="已发布"
-                        android:textColor="@color/text_main"
-                        android:textSize="25sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="文字留下来，日子就有了形状。"
-                        android:textColor="@color/text_light"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btn_refresh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/bg_btn_secondary"
-                    android:minWidth="0dp"
-                    android:paddingLeft="15dp"
-                    android:paddingTop="11dp"
-                    android:paddingRight="15dp"
-                    android:paddingBottom="11dp"
-                    android:text="刷新 ↻"
-                    android:textColor="@color/btn_secondary_text"
-                    android:textSize="14sp" />
-            </RelativeLayout>
-
-            <ListView
-                android:id="@+id/lv_posts"
+                    android:text="按发布时间排序 ↓"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_posts_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp"
+                android:visibility="gone"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="20dp"
-                android:layout_weight="1"
-                android:divider="@null"
-                android:dividerHeight="0dp" />
+                android:layout_weight="1">
+                <ListView
+                    android:id="@+id/lv_posts"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:divider="@android:color/transparent"
+                    android:dividerHeight="12dp"
+                    android:scrollbars="none"
+                    android:clipToPadding="false"
+                    android:paddingBottom="16dp" />
+                <LinearLayout
+                    android:id="@+id/empty_published"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="20dp"
+                    android:visibility="gone">
+                    <ImageView
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:src="@drawable/ic_posts"
+                        android:alpha="0.5"
+                        android:importantForAccessibility="no" />
+                    <TextView
+                        android:id="@+id/empty_published_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:text="第一篇故事，从这里开始"
+                        android:textColor="@color/text_main"
+                        android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/empty_published_desc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="连接 GitHub，发布属于你的第一篇文章。"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                    <Button
+                        android:id="@+id/empty_published_action"
+                        style="@style/UiSecondary"
+                        android:text="开始写作"
+                        android:layout_marginTop="20dp" />
+                </LinearLayout>
+            </FrameLayout>
         </LinearLayout>
-
-        <!-- 设置 -->
-        <LinearLayout
+        <ScrollView
             android:id="@+id/panel_settings"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
+            android:fillViewport="true"
+            android:scrollbars="none"
             android:visibility="gone">
-
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="我的空间"
-                    android:textColor="@color/text_main"
-                    android:textSize="25sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="连接你的博客，安心写下每一天。"
-                    android:textColor="@color/text_light"
-                    android:textSize="13sp" />
-            </LinearLayout>
-
-            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="20dp"
-                android:layout_weight="1"
-                android:fillViewport="true">
-
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="24dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_paper"
-                    android:orientation="vertical"
-                    android:padding="30dp">
-
+                    android:padding="20dp"
+                    android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="25dp"
-                        android:text="GitHub 仓库配置"
+                        android:text="仓库连接"
+                        android:textSize="16sp"
                         android:textColor="@color/text_main"
-                        android:textSize="16sp" />
-
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginBottom="20dp" />
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="GitHub Token (PAT)"
-                        android:textColor="@color/field_label"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/et_token"
+                        android:id="@+id/tv_repo_status"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="9dp"
-                        android:background="@drawable/bg_field"
-                        android:hint="输入你的访问令牌"
-                        android:inputType="textPassword"
-                        android:paddingLeft="14dp"
-                        android:paddingTop="12dp"
-                        android:paddingRight="14dp"
-                        android:paddingBottom="12dp"
-                        android:textColor="@color/field_text"
-                        android:textColorHint="@color/text_light" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
-                        android:text="仓库拥有者"
-                        android:textColor="@color/field_label"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/et_owner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="9dp"
-                        android:background="@drawable/bg_field"
-                        android:hint="You0"
-                        android:inputType="text"
-                        android:paddingLeft="14dp"
-                        android:paddingTop="12dp"
-                        android:paddingRight="14dp"
-                        android:paddingBottom="12dp"
-                        android:textColor="@color/field_text"
-                        android:textColorHint="@color/text_light" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
-                        android:text="仓库名"
-                        android:textColor="@color/field_label"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/et_repo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="9dp"
-                        android:background="@drawable/bg_field"
-                        android:hint="my-blog"
-                        android:inputType="text"
-                        android:paddingLeft="14dp"
-                        android:paddingTop="12dp"
-                        android:paddingRight="14dp"
-                        android:paddingBottom="12dp"
-                        android:textColor="@color/field_text"
-                        android:textColorHint="@color/text_light" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
-                        android:text="分支"
-                        android:textColor="@color/field_label"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/et_branch"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="9dp"
-                        android:background="@drawable/bg_field"
-                        android:hint="main"
-                        android:inputType="text"
-                        android:paddingLeft="14dp"
-                        android:paddingTop="12dp"
-                        android:paddingRight="14dp"
-                        android:paddingBottom="12dp"
-                        android:textColor="@color/field_text"
-                        android:textColorHint="@color/text_light" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
-                        android:text="文章目录"
-                        android:textColor="@color/field_label"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/et_posts_dir"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="9dp"
-                        android:background="@drawable/bg_field"
-                        android:hint="source/_posts"
-                        android:inputType="text"
-                        android:paddingLeft="14dp"
-                        android:paddingTop="12dp"
-                        android:paddingRight="14dp"
-                        android:paddingBottom="12dp"
-                        android:textColor="@color/field_text"
-                        android:textColorHint="@color/text_light" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="18dp"
-                        android:text="默认作者"
-                        android:textColor="@color/field_label"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/et_author"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="9dp"
-                        android:background="@drawable/bg_field"
-                        android:hint="You0"
-                        android:inputType="text"
-                        android:paddingLeft="14dp"
-                        android:paddingTop="12dp"
-                        android:paddingRight="14dp"
-                        android:paddingBottom="12dp"
-                        android:textColor="@color/field_text"
-                        android:textColorHint="@color/text_light" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="25dp"
-                        android:lineSpacingExtra="5dp"
-                        android:text="Token 只保存在手机本地，不会上传到别处。需要给仓库 Contents（内容）读写权限。"
+                        android:layout_marginTop="0dp"
+                        android:text="连接仓库后，即可一键发布文章。"
+                        android:textSize="12sp"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
+                        android:visibility="gone"
+                        android:layout_marginBottom="16dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="访问令牌 · GitHub Token"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_main" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btn_test"
+                        android:gravity="center_vertical">
+                        <EditText
+                            android:id="@+id/et_token"
+                            style="@style/UiField"
+                            android:hint="输入 Personal Access Token"
+                            android:inputType="textPassword"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/bg_btn_secondary"
-                            android:paddingTop="11dp"
-                            android:paddingBottom="11dp"
-                            android:text="测试连接"
-                            android:textColor="@color/btn_secondary_text"
-                            android:textSize="14sp" />
-
+                            android:layout_weight="1" />
                         <Button
-                            android:id="@+id/btn_save_settings"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:layout_weight="1"
-                            android:background="@drawable/bg_btn_primary"
-                            android:paddingTop="11dp"
-                            android:paddingBottom="11dp"
-                            android:text="保存设置"
-                            android:textColor="@android:color/white"
-                            android:textSize="14sp" />
+                            android:id="@+id/btn_token_visibility"
+                            style="@style/UiTool"
+                            android:text="显示"
+                            android:textSize="12sp"
+                            android:contentDescription="显示或隐藏访问令牌" />
                     </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="令牌仅保存在本机，需要仓库 Contents 读写权限。"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="20dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="仓库拥有者"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_main" />
+                    <EditText
+                        android:id="@+id/et_owner"
+                        style="@style/UiField"
+                        android:hint="例如 You0" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="仓库名称"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_main" />
+                    <EditText
+                        android:id="@+id/et_repo"
+                        style="@style/UiField"
+                        android:hint="例如 my-blog" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="12dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="分支"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_main" />
+                            <EditText
+                                android:id="@+id/et_branch"
+                                style="@style/UiField"
+                                android:hint="main" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="文章目录"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_main" />
+                            <EditText
+                                android:id="@+id/et_posts_dir"
+                                style="@style/UiField"
+                                android:hint="source/_posts" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <Button
+                        android:id="@+id/btn_test"
+                        style="@style/UiSecondary"
+                        android:text="测试连接"
+                        android:layout_width="match_parent" />
                 </LinearLayout>
-            </ScrollView>
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_paper"
+                    android:padding="20dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="写作偏好"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_main"
+                        android:fontFamily="sans-serif-medium"
+                        android:layout_marginBottom="20dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="作者署名"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_main" />
+                    <EditText
+                        android:id="@+id/et_author"
+                        style="@style/UiField"
+                        android:hint="你的名字" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="草稿在本机保存，离线也能安心写作。"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
     </FrameLayout>
-
-    <!-- 底部导航 -->
     <LinearLayout
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
+        android:orientation="vertical"
+        android:background="@color/card">
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/border_light" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="10dp"
-            android:paddingTop="6dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="6dp">
-
+            android:layout_height="68dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="4dp">
             <TextView
                 android:id="@+id/nav_write"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="✎　写文章"
-                android:textColor="@color/nav_text"
-                android:textSize="13sp" />
-
+                style="@style/UiNav"
+                android:text="写作"
+                android:drawableTop="@drawable/ic_write" />
             <TextView
                 android:id="@+id/nav_drafts"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="▤　草稿"
-                android:textColor="@color/nav_text"
-                android:textSize="13sp" />
-
+                style="@style/UiNav"
+                android:text="草稿"
+                android:drawableTop="@drawable/ic_drafts" />
             <TextView
                 android:id="@+id/nav_published"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="▧　已发布"
-                android:textColor="@color/nav_text"
-                android:textSize="13sp" />
-
+                style="@style/UiNav"
+                android:text="文章"
+                android:drawableTop="@drawable/ic_posts" />
             <TextView
                 android:id="@+id/nav_settings"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:paddingLeft="4dp"
-                android:paddingRight="4dp"
-                android:text="⚙　设置"
-                android:textColor="@color/nav_text"
-                android:textSize="13sp" />
+                style="@style/UiNav"
+                android:text="设置"
+                android:drawableTop="@drawable/ic_settings" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
